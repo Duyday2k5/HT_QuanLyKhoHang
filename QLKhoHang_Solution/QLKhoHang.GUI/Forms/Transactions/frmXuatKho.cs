@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using QLKhoHang.BUS;
 using QLKhoHang.DTO;
 using QLKhoHang.GUI.Common;
+using QLKhoHang.GUI.Helpers;
 
 namespace QLKhoHang.GUI.Forms.Transactions
 {
@@ -37,6 +38,13 @@ namespace QLKhoHang.GUI.Forms.Transactions
                 cboHangHoa.SelectedIndexChanged += CboHangHoa_SelectedIndexChanged;
                 numSoLuong.ValueChanged += TinhToanThanhTienTamTinh;
                 numDonGia.ValueChanged += TinhToanThanhTienTamTinh;
+                numSoLuong.KeyPress += (s, ev) =>
+                {
+                    if (!char.IsControl(ev.KeyChar) && !char.IsDigit(ev.KeyChar))
+                    {
+                        ev.Handled = true;
+                    }
+                };
                 btnThemDong.Click += BtnThemDong_Click;
                 btnLuuPhieu.Click += BtnLuuPhieu_Click;
                 btnHuy.Click += BtnHuy_Click;
@@ -66,8 +74,14 @@ namespace QLKhoHang.GUI.Forms.Transactions
 
         private void KhoiTaoCauTrucBangChiTiet()
         {
+            UIThemeHelper.ApplyStandardGridStyle(dgvChiTiet);
+            this.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             dgvChiTiet.AutoGenerateColumns = false;
             dgvChiTiet.Columns.Clear();
+            dgvChiTiet.ReadOnly = true;
+            dgvChiTiet.AllowUserToAddRows = false;
+            dgvChiTiet.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvChiTiet.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             // Cột 1: STT
             DataGridViewTextBoxColumn colSTT = new DataGridViewTextBoxColumn
@@ -232,6 +246,15 @@ namespace QLKhoHang.GUI.Forms.Transactions
                 int soLuongXuat = (int)numSoLuong.Value;
                 decimal donGiaXuat = numDonGia.Value;
 
+                // Bẫy chặn xuất vượt tồn ngay trên giao diện
+                if (_tonKhoHienTai <= 0)
+                {
+                    MessageBox.Show(
+                        $"Sản phẩm '{tenSP}' ({maSP}) hiện đã hết hàng trong kho (Tồn kho = 0)!\nKhông thể xuất mặt hàng này.",
+                        "CẢNH BÁO XUẤT VƯỢT TỒN KHO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 // NGHIỆP VỤ CỐT LÕI: Kiểm tra chặn xuất âm
                 _phieuXuatBUS.ThemHoacCapNhatGioXuat(_gioXuat, maSP, tenSP, dvt, soLuongXuat, donGiaXuat, _tonKhoHienTai);
 
@@ -343,7 +366,6 @@ namespace QLKhoHang.GUI.Forms.Transactions
                 TaiDanhSachHangHoa();
                 LamMoiPhieu();
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi lưu phiếu xuất kho:\n" + ex.Message, "Lỗi nghiệp vụ",
@@ -362,6 +384,8 @@ namespace QLKhoHang.GUI.Forms.Transactions
                 if (popup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrEmpty(popup.MaSPDuocChon))
                 {
                     cboHangHoa.SelectedValue = popup.MaSPDuocChon;
+                    numSoLuong.Focus();
+                    numSoLuong.Select(0, numSoLuong.Text.Length);
                 }
             }
         }

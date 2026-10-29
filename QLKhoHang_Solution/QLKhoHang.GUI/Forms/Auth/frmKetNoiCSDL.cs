@@ -25,8 +25,6 @@ namespace QLKhoHang.GUI.Forms.Auth
             }
         }
 
-
-
         private async void BtnKiemTraVaLuu_Click(object sender, EventArgs e)
         {
             btnKiemTraVaLuu.Enabled = false;

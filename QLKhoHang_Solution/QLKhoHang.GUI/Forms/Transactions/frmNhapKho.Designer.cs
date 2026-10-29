@@ -1,4 +1,4 @@
-﻿namespace QLKhoHang.GUI
+namespace QLKhoHang.GUI.Forms.Transactions
 {
     partial class frmNhapKho
     {

@@ -17,8 +17,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.lblTitle = new System.Windows.Forms.Label();
-            this.pnlLogo = new System.Windows.Forms.Panel();
-            this.lblLogoGlyph = new System.Windows.Forms.Label();
+            this.picLogo = new System.Windows.Forms.PictureBox();
             this.lblDatabaseTitle = new System.Windows.Forms.Label();
             this.pnlDatabase = new System.Windows.Forms.Panel();
             this.lblDatabase = new System.Windows.Forms.Label();
@@ -40,7 +39,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.lblTrangThai = new System.Windows.Forms.Label();
             this.btnDong = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
-            this.pnlLogo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.pnlDatabase.SuspendLayout();
             this.pnlWarning.SuspendLayout();
             this.pnlBackup.SuspendLayout();
@@ -53,7 +52,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(16, 44, 59);
             this.pnlHeader.Controls.Add(this.lblSubtitle);
             this.pnlHeader.Controls.Add(this.lblTitle);
-            this.pnlHeader.Controls.Add(this.pnlLogo);
+            this.pnlHeader.Controls.Add(this.picLogo);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
@@ -80,26 +79,15 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.lblTitle.TabIndex = 1;
             this.lblTitle.Text = "Sao lưu và khôi phục dữ liệu";
             //
-            // pnlLogo
+            // picLogo
             //
-            this.pnlLogo.BackColor = System.Drawing.Color.FromArgb(225, 244, 239);
-            this.pnlLogo.Controls.Add(this.lblLogoGlyph);
-            this.pnlLogo.Location = new System.Drawing.Point(32, 27);
-            this.pnlLogo.Name = "pnlLogo";
-            this.pnlLogo.Size = new System.Drawing.Size(48, 48);
-            this.pnlLogo.TabIndex = 0;
-            //
-            // lblLogoGlyph
-            //
-            this.lblLogoGlyph.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblLogoGlyph.Font = new System.Drawing.Font("Segoe UI Symbol", 24F, System.Drawing.FontStyle.Bold);
-            this.lblLogoGlyph.ForeColor = System.Drawing.Color.FromArgb(7, 139, 124);
-            this.lblLogoGlyph.Location = new System.Drawing.Point(0, 0);
-            this.lblLogoGlyph.Name = "lblLogoGlyph";
-            this.lblLogoGlyph.Size = new System.Drawing.Size(48, 48);
-            this.lblLogoGlyph.TabIndex = 0;
-            this.lblLogoGlyph.Text = "▤";
-            this.lblLogoGlyph.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.picLogo.Image = global::QLKhoHang.GUI.Properties.Resources.logo_khohang;
+            this.picLogo.Location = new System.Drawing.Point(32, 27);
+            this.picLogo.Name = "picLogo";
+            this.picLogo.Size = new System.Drawing.Size(48, 48);
+            this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picLogo.TabIndex = 0;
+            this.picLogo.TabStop = false;
             //
             // lblDatabaseTitle
             //
@@ -364,13 +352,13 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Sao lưu và khôi phục dữ liệu";
             this.pnlHeader.ResumeLayout(false);
-            this.pnlLogo.ResumeLayout(false);
             this.pnlDatabase.ResumeLayout(false);
             this.pnlDatabase.PerformLayout();
             this.pnlWarning.ResumeLayout(false);
             this.pnlBackup.ResumeLayout(false);
             this.pnlRestore.ResumeLayout(false);
             this.pnlStatus.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -380,8 +368,7 @@ namespace QLKhoHang.GUI.Forms.Auth
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblSubtitle;
         private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Panel pnlLogo;
-        private System.Windows.Forms.Label lblLogoGlyph;
+        private System.Windows.Forms.PictureBox picLogo;
         private System.Windows.Forms.Label lblDatabaseTitle;
         private System.Windows.Forms.Panel pnlDatabase;
         private System.Windows.Forms.Label lblDatabase;

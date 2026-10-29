@@ -59,5 +59,13 @@ namespace QLKhoHang.GUI.Forms.Auth
         {
             Close();
         }
+
+        private void chkHienMatKhau_CheckedChanged(object sender, EventArgs e)
+        {
+            bool show = chkHienMatKhau.Checked;
+            txtMatKhauCu.UseSystemPasswordChar = !show;
+            txtMatKhauMoi.UseSystemPasswordChar = !show;
+            txtXacNhanMatKhau.UseSystemPasswordChar = !show;
+        }
     }
 }

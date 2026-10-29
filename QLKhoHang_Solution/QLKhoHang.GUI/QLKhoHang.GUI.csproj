@@ -62,6 +62,12 @@
     <Compile Include="Forms\Auth\frmDoiMatKhau.Designer.cs">
       <DependentUpon>frmDoiMatKhau.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Auth\frmQuanLiTaiKhoan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Auth\frmQuanLiTaiKhoan.Designer.cs">
+      <DependentUpon>frmQuanLiTaiKhoan.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Main\frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -116,8 +122,36 @@
     <Compile Include="Forms\Transactions\frmXuatKho.Designer.cs">
       <DependentUpon>frmXuatKho.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\MasterData\frmAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MasterData\frmAbout.Designer.cs">
+      <DependentUpon>frmAbout.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MasterData\frmHangHoa.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MasterData\frmHangHoa.Designer.cs">
+      <DependentUpon>frmHangHoa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MasterData\frmNhaCungCap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MasterData\frmNhaCungCap.Designer.cs">
+      <DependentUpon>frmNhaCungCap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\UIThemeHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\Main\frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MasterData\frmAbout.resx">
+      <DependentUpon>frmAbout.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MasterData\frmHangHoa.resx">
+      <DependentUpon>frmHangHoa.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Transactions\frmKiemKe.resx">
       <DependentUpon>frmKiemKe.cs</DependentUpon>
     </EmbeddedResource>
@@ -129,27 +163,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Transactions\frmXuatKho.resx">
       <DependentUpon>frmXuatKho.cs</DependentUpon>
-    <Compile Include="frmAbout.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmAbout.Designer.cs">
-      <DependentUpon>frmAbout.cs</DependentUpon>
-    </Compile>
-    <Compile Include="frmHangHoa.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmHangHoa.Designer.cs">
-      <DependentUpon>frmHangHoa.cs</DependentUpon>
-    </Compile>
-    <Compile Include="frmNhaCungCap.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmNhaCungCap.Designer.cs">
-      <DependentUpon>frmNhaCungCap.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Helpers\UIThemeHelper.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Auth\frmDangNhap.resx">
       <DependentUpon>frmDangNhap.cs</DependentUpon>
     </EmbeddedResource>
@@ -158,7 +172,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Inventory\frmTheKho.resx">
       <DependentUpon>frmTheKho.cs</DependentUpon>
-    <EmbeddedResource Include="frmNhaCungCap.resx">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MasterData\frmNhaCungCap.resx">
       <DependentUpon>frmNhaCungCap.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -182,12 +197,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Resources\logo_khohang.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QLKhoHang.DAL\QLKhoHang.DAL.csproj">
-      <Project>{679e96b4-a2d4-4d93-86ce-15dafdaac89e}</Project>
-      <Name>QLKhoHang.DAL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\QLKhoHang.BUS\QLKhoHang.BUS.csproj">
       <Project>{500171e3-3bfa-458c-b707-24f5c6d90275}</Project>
       <Name>QLKhoHang.BUS</Name>

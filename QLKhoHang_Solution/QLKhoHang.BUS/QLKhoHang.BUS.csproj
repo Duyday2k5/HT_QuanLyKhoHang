@@ -43,12 +43,15 @@
   <ItemGroup>
     <Compile Include="CauHinhCSDL_BUS.cs" />
     <Compile Include="ChucNang.cs" />
+    <Compile Include="HangHoaBUS.cs" />
     <Compile Include="KiemKeBUS.cs" />
+    <Compile Include="NhaCungCapBUS.cs" />
     <Compile Include="NhanVienBUS.cs" />
     <Compile Include="PhanQuyenBUS.cs" />
     <Compile Include="PhieuNhapBUS.cs" />
     <Compile Include="PhieuXuatBUS.cs" />
     <Compile Include="SaoLuuBUS.cs" />
+    <Compile Include="TheKhoBUS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

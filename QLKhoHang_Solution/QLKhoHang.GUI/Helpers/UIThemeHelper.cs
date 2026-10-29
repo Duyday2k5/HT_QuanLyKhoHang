@@ -1,126 +1,145 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace QLKhoHang.GUI.Helpers
 {
-    /// <summary>
-    /// Lớp hỗ trợ quy chuẩn giao diện (UI/UX Guidelines) theo tài liệu dự án Quản lý Kho hàng:
-    /// - Font hệ thống: Segoe UI
-    /// - Bảng màu: Header/Sidebar (#1E293B), Workspace (#F8FAFC), Nút Thêm/Lưu (#0D9488 / #2563EB), Nút Xóa (#DC2626)
-    /// - Chuẩn hóa DataGridView: ReadOnly, FullRowSelect, tô màu xen kẽ hàng
-    /// - Cảnh báo trực quan tồn kho an toàn (Tô màu đỏ cho sản phẩm chạm ngưỡng tồn tối thiểu)
-    /// </summary>
     public static class UIThemeHelper
     {
-        #region 1. BẢNG MÀU CHUẨN (PALETTE COLORS)
-        // Màu giao diện chính
-        public static readonly Color HeaderSidebarColor = ColorTranslator.FromHtml("#1E293B"); // Slate đậm
-        public static readonly Color WorkspaceBgColor = ColorTranslator.FromHtml("#F8FAFC"); // Nền xám sáng
-        public static readonly Color CardBgColor = Color.White;
-        public static readonly Color BorderColor = ColorTranslator.FromHtml("#E2E8F0"); // Viền xám nhạt
-
-        // Màu nút bấm hành động (Action Buttons)
-        public static readonly Color PrimaryTealColor = ColorTranslator.FromHtml("#0D9488"); // Nút Thêm / Lưu (Teal)
-        public static readonly Color PrimaryBlueColor = ColorTranslator.FromHtml("#2563EB"); // Nút Thao tác / Tìm kiếm (Blue)
-        public static readonly Color DangerRedColor = ColorTranslator.FromHtml("#DC2626"); // Nút Cảnh báo / Xóa (Red)
-        public static readonly Color NeutralGrayColor = ColorTranslator.FromHtml("#64748B"); // Nút Làm mới / Hủy (Slate Gray)
-
-        // Màu cảnh báo tồn kho trên DataGridView
-        public static readonly Color WarningRowBgColor = ColorTranslator.FromHtml("#FEE2E2"); // Đỏ nhạt nền dòng cảnh báo
-        public static readonly Color WarningTextRedColor = ColorTranslator.FromHtml("#B91C1C"); // Đỏ đậm chữ cảnh báo
-        public static readonly Color NormalRowBgColor = Color.White;
-        public static readonly Color AlternatingRowBgColor = ColorTranslator.FromHtml("#F1F5F9"); // Xen kẽ hàng
-        public static readonly Color HeaderRowBgColor = ColorTranslator.FromHtml("#0F172A"); // Header DataGridView
-        public static readonly Color SelectedRowBgColor = ColorTranslator.FromHtml("#93C5FD"); // Dòng đang chọn
+        #region 1. BẢNG MÀU CHUẨN
+        public static readonly Color PrimaryDark = Color.FromArgb(30, 41, 59);      // #1E293B
+        public static readonly Color WorkspaceBg = Color.FromArgb(248, 250, 252);   // #F8FAFC
+        public static readonly Color WorkspaceBgColor = Color.FromArgb(248, 250, 252);
+        public static readonly Color AccentTeal = Color.FromArgb(13, 148, 136);     // #0D9488
+        public static readonly Color AccentTealHover = Color.FromArgb(15, 118, 110);
+        public static readonly Color AccentBlue = Color.FromArgb(37, 99, 235);      // #2563EB
+        public static readonly Color AccentBlueHover = Color.FromArgb(29, 78, 216);
+        public static readonly Color DangerRed = Color.FromArgb(239, 68, 68);       // #EF4444
+        public static readonly Color DangerRedHover = Color.FromArgb(220, 38, 38);
+        public static readonly Color WarningRowBg = Color.FromArgb(254, 226, 226);   // #FEE2E2
+        public static readonly Color WarningText = Color.FromArgb(185, 28, 28);      // #B91C1C
+        public static readonly Color NeutralGray = Color.FromArgb(100, 116, 139);   // #64748B
+        public static readonly Color NeutralGrayHover = Color.FromArgb(71, 85, 105);
+        public static readonly Color BorderColor = Color.FromArgb(226, 232, 240);
         #endregion
 
-        #region 2. BỘ FONT SEGOE UI CHUẨN
-        public static readonly Font TitleFont = new Font("Segoe UI", 15f, FontStyle.Bold);
-        public static readonly Font SubTitleFont = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public static readonly Font ControlFont = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public static readonly Font ControlBoldFont = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public static readonly Font SmallItalicFont = new Font("Segoe UI", 8.5f, FontStyle.Italic);
-        public static readonly Font GridHeaderFont = new Font("Segoe UI", 10f, FontStyle.Bold);
+        #region 2. FONT CHỮ CHUẨN
+        public static readonly Font HeaderFont = new Font("Segoe UI", 13f, FontStyle.Bold);
+        public static readonly Font SubHeaderFont = new Font("Segoe UI", 10.5f, FontStyle.Bold);
+        public static readonly Font ControlFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+        public static readonly Font ControlBoldFont = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+        public static readonly Font GridFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+        public static readonly Font SmallFont = new Font("Segoe UI", 8.5f, FontStyle.Regular);
+        public static readonly Font WarningFont = new Font("Segoe UI", 9.5f, FontStyle.Bold);
         #endregion
 
-        #region 3. CHUẨN HÓA DATAGRIDVIEW
-        /// <summary>
-        /// Áp dụng toàn bộ quy chuẩn DataGridView theo Mục 1.3 Báo cáo tiểu luận:
-        /// ReadOnly = true, SelectionMode = FullRowSelect, MultiSelect = false,
-        /// AutoSizeColumnsMode = Fill, RowHeadersVisible = false, tô màu xen kẽ hàng.
-        /// </summary>
+        #region 3. VẼ LOGO DÙNG CHUNG TOÀN HỆ THỐNG
+        public static void VeLogoHienDai(Panel pnlLogo, Label lblGlyph, Label lblBrandText)
+        {
+            if (pnlLogo == null) return;
+
+            if (lblGlyph != null) lblGlyph.Text = string.Empty;
+            pnlLogo.BackColor = Color.Transparent;
+
+            pnlLogo.Paint -= Logo_Paint;
+            pnlLogo.Paint += Logo_Paint;
+            pnlLogo.Invalidate();
+
+            if (lblBrandText != null)
+            {
+                lblBrandText.Font = new Font("Segoe UI", 10f, FontStyle.Bold);
+                lblBrandText.Text = "HỆ THỐNG" + Environment.NewLine + "QUẢN LÝ KHO HÀNG";
+            }
+        }
+
+        private static void Logo_Paint(object sender, PaintEventArgs e)
+        {
+            Control pnl = sender as Control;
+            if (pnl == null) return;
+
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+            if (Properties.Resources.logo_khohang != null)
+            {
+                g.DrawImage(Properties.Resources.logo_khohang, new Rectangle(0, 0, pnl.Width, pnl.Height));
+            }
+        }
+        #endregion
+
+        #region 4. CHUẨN HÓA DATAGRIDVIEW
+        public static void SetDoubleBuffered(this DataGridView dgv, bool enable = true)
+        {
+            if (dgv == null) return;
+            typeof(DataGridView).InvokeMember("DoubleBuffered",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty,
+                null, dgv, new object[] { enable });
+        }
+
         public static void ApplyStandardGridStyle(DataGridView dgv)
         {
             if (dgv == null) return;
 
-            // Thiết lập tương tác & hiển thị
+            SetDoubleBuffered(dgv, true);
+
+            dgv.EnableHeadersVisualStyles = false;
+            dgv.BorderStyle = BorderStyle.None;
+            dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgv.GridColor = Color.FromArgb(241, 245, 249);
+            dgv.BackgroundColor = Color.White;
+            dgv.RowHeadersVisible = false;
+
+            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv.MultiSelect = false;
             dgv.ReadOnly = true;
             dgv.AllowUserToAddRows = false;
             dgv.AllowUserToDeleteRows = false;
             dgv.AllowUserToResizeRows = false;
-            dgv.MultiSelect = false;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgv.RowHeadersVisible = false;
-            dgv.BackgroundColor = WorkspaceBgColor;
-            dgv.BorderStyle = BorderStyle.None;
-            dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dgv.GridColor = BorderColor;
-            dgv.EnableHeadersVisualStyles = false;
 
-            // Định dạng tiêu đề cột (Column Headers)
             dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgv.ColumnHeadersHeight = 40;
-            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgv.ColumnHeadersDefaultCellStyle.BackColor = HeaderRowBgColor;
+            dgv.ColumnHeadersDefaultCellStyle.BackColor = PrimaryDark;
             dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgv.ColumnHeadersDefaultCellStyle.Font = GridHeaderFont;
+            dgv.ColumnHeadersDefaultCellStyle.Font = ControlBoldFont;
             dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgv.ColumnHeadersDefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+            dgv.ColumnHeadersHeight = 38;
+            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
-            // Định dạng hàng dữ liệu (Rows)
             dgv.RowTemplate.Height = 34;
-            dgv.DefaultCellStyle.Font = ControlFont;
-            dgv.DefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#1E293B");
-            dgv.DefaultCellStyle.BackColor = NormalRowBgColor;
-            dgv.DefaultCellStyle.SelectionBackColor = SelectedRowBgColor;
-            dgv.DefaultCellStyle.SelectionForeColor = Color.Black;
+            dgv.DefaultCellStyle.Font = GridFont;
+            dgv.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
+            dgv.DefaultCellStyle.BackColor = Color.White;
+            dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(186, 230, 253);
+            dgv.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
+            dgv.DefaultCellStyle.Padding = new Padding(6, 0, 6, 0);
 
-            // Định dạng màu xen kẽ hàng (Alternating rows)
-            dgv.AlternatingRowsDefaultCellStyle.BackColor = AlternatingRowBgColor;
-            dgv.AlternatingRowsDefaultCellStyle.ForeColor = ColorTranslator.FromHtml("#1E293B");
-            dgv.AlternatingRowsDefaultCellStyle.SelectionBackColor = SelectedRowBgColor;
-            dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.Black;
+            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            dgv.AlternatingRowsDefaultCellStyle.SelectionBackColor = Color.FromArgb(186, 230, 253);
+            dgv.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
         }
 
-        /// <summary>
-        /// Tô màu cảnh báo trực quan cho dòng sản phẩm có lượng tồn chạm hoặc dưới ngưỡng tối thiểu:
-        /// SoLuongTon <= TonToiThieu.
-        /// Thường gọi bên trong sự kiện dgvHangHoa_CellFormatting.
-        /// </summary>
-        public static void FormatHangHoaRowWarning(DataGridViewCellFormattingEventArgs e, DataGridView dgv, string colSoLuongTon, string colTonToiThieu)
+        public static void FormatHangHoaRowWarning(DataGridViewCellFormattingEventArgs e, DataGridView dgv, string colTonKho = "SoLuongTon", string colTonToiThieu = "TonToiThieu")
         {
-            if (dgv == null || e.RowIndex < 0 || e.RowIndex >= dgv.Rows.Count) return;
+            if (e == null || dgv == null || e.RowIndex < 0 || e.RowIndex >= dgv.Rows.Count) return;
 
-            var row = dgv.Rows[e.RowIndex];
-            if (row == null || row.DataBoundItem == null) return;
-
-            if (row.Cells[colSoLuongTon]?.Value != null && row.Cells[colTonToiThieu]?.Value != null)
+            DataGridViewRow row = dgv.Rows[e.RowIndex];
+            if (row.Cells[colTonKho]?.Value != null && row.Cells[colTonToiThieu]?.Value != null)
             {
-                if (int.TryParse(row.Cells[colSoLuongTon].Value.ToString(), out int soLuongTon) &&
-                    int.TryParse(row.Cells[colTonToiThieu].Value.ToString(), out int tonToiThieu))
+                if (int.TryParse(row.Cells[colTonKho].Value.ToString(), out int tonKho) &&
+                    int.TryParse(row.Cells[colTonToiThieu].Value.ToString(), out int tonMin))
                 {
-                    if (soLuongTon <= tonToiThieu)
+                    if (tonKho <= tonMin)
                     {
-                        // Tô màu nền đỏ nhạt cho cả dòng
-                        row.DefaultCellStyle.BackColor = WarningRowBgColor;
-                        row.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#FECACA");
+                        row.DefaultCellStyle.BackColor = WarningRowBg;
+                        row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(254, 202, 202);
+                        row.DefaultCellStyle.SelectionForeColor = WarningText;
 
-                        // Riêng ô số lượng tồn in chữ đỏ đậm cảnh báo
-                        if (dgv.Columns[e.ColumnIndex].Name == colSoLuongTon)
+                        if (row.Cells[colTonKho] != null)
                         {
-                            e.CellStyle.ForeColor = WarningTextRedColor;
-                            e.CellStyle.Font = ControlBoldFont;
+                            row.Cells[colTonKho].Style.ForeColor = WarningText;
+                            row.Cells[colTonKho].Style.Font = WarningFont;
                         }
                     }
                 }
@@ -128,74 +147,168 @@ namespace QLKhoHang.GUI.Helpers
         }
         #endregion
 
-        #region 4. QUY CHUẨN NÚT BẤM (BUTTONS)
+        #region 5. CHUẨN HÓA NÚT BẤM (BUTTON)
         public enum ButtonType
         {
-            SaveOrAdd,  // Lưu hoặc Thêm mới (#0D9488 Teal)
-            Primary,    // Tìm kiếm, Xem (#2563EB Blue)
-            Danger,     // Xóa, Hủy đơn (#DC2626 Red)
-            Neutral     // Làm mới, Bỏ qua (#64748B Slate)
+            Primary,
+            Secondary,
+            Danger,
+            Neutral,
+            Search,
+            SaveOrAdd
         }
 
-        /// <summary>
-        /// Định dạng nút bấm phẳng hiện đại, bo nhẹ cạnh và đúng bảng màu quy chuẩn.
-        /// </summary>
         public static void ApplyButtonStyle(Button btn, ButtonType type)
         {
             if (btn == null) return;
 
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 0;
-            btn.Font = ControlBoldFont;
+            btn.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
             btn.ForeColor = Color.White;
             btn.Cursor = Cursors.Hand;
             btn.Height = Math.Max(btn.Height, 36);
+            btn.Padding = new Padding(0);
+            btn.Margin = new Padding(3);
+            btn.TextAlign = ContentAlignment.MiddleCenter;
+            btn.TextImageRelation = TextImageRelation.ImageBeforeText;
+
+            Color baseColor;
+            Color hoverColor;
 
             switch (type)
             {
                 case ButtonType.SaveOrAdd:
-                    btn.BackColor = PrimaryTealColor;
-                    btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#0F766E");
-                    break;
                 case ButtonType.Primary:
-                    btn.BackColor = PrimaryBlueColor;
-                    btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#1D4ED8");
+                    baseColor = AccentTeal;
+                    hoverColor = AccentTealHover;
+                    break;
+                case ButtonType.Secondary:
+                    baseColor = PrimaryDark;
+                    hoverColor = Color.FromArgb(51, 65, 85);
                     break;
                 case ButtonType.Danger:
-                    btn.BackColor = DangerRedColor;
-                    btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#B91C1C");
+                    baseColor = DangerRed;
+                    hoverColor = DangerRedHover;
+                    break;
+                case ButtonType.Search:
+                    baseColor = Color.FromArgb(15, 118, 110);
+                    hoverColor = AccentTeal;
                     break;
                 case ButtonType.Neutral:
-                    btn.BackColor = NeutralGrayColor;
-                    btn.FlatAppearance.MouseOverBackColor = ColorTranslator.FromHtml("#475569");
+                default:
+                    baseColor = NeutralGray;
+                    hoverColor = NeutralGrayHover;
                     break;
             }
+
+            btn.BackColor = baseColor;
+            btn.FlatAppearance.MouseOverBackColor = hoverColor;
         }
         #endregion
 
-        #region 5. QUY CÁCH FORM CON (EMBEDDED CHILD FORM)
+        #region 6. ĐỒNG BỘ TOÀN DIỆN MỌI FORM CON KHI MỞ
         /// <summary>
-        /// Cấu hình Form con để nhúng trực tiếp vào Panel Workspace của frmMain theo Mục 1.3:
-        /// TopLevel = false, FormBorderStyle = None, Dock = Fill.
+        /// Tự động duyệt sạch sẽ các form con (ẩn tiêu đề lặp, chuẩn hóa nút, làm đẹp lưới)
         /// </summary>
-        public static void EmbedChildForm(Form childForm, Panel targetPanel)
+        public static void DongBoToanDienFormCon(Form childForm, string tieuDe)
         {
-            if (childForm == null || targetPanel == null) return;
+            if (childForm == null) return;
 
-            if (targetPanel.Controls.Count > 0)
+            childForm.BackColor = Color.White;
+            childForm.Font = ControlFont;
+
+            QuetVaChuanHoaControls(childForm, tieuDe);
+        }
+
+        private static void QuetVaChuanHoaControls(Control parent, string tieuDe)
+        {
+            foreach (Control c in parent.Controls)
             {
-                Control current = targetPanel.Controls[0];
-                targetPanel.Controls.Remove(current);
-                current.Dispose();
-            }
+                // 1. Ẩn tiêu đề con bị trùng lặp với thanh tiêu đề trên frmMain
+                if (c is Label lbl)
+                {
+                    string txt = lbl.Text.Trim().ToUpper();
+                    if (txt.StartsWith("QUẢN LÝ") || txt.StartsWith("KIỂM KÊ") ||
+                        txt.StartsWith("SỔ THẺ") || txt.StartsWith("BÁO CÁO") ||
+                        (!string.IsNullOrEmpty(tieuDe) && txt.Contains(tieuDe.ToUpper())))
+                    {
+                        if (lbl.Font.Size >= 12f)
+                        {
+                            lbl.Visible = false;
+                        }
+                    }
+                }
 
-            childForm.TopLevel = false;
-            childForm.FormBorderStyle = FormBorderStyle.None;
-            childForm.Dock = DockStyle.Fill;
-            targetPanel.Controls.Add(childForm);
-            targetPanel.Tag = childForm;
-            childForm.BringToFront();
-            childForm.Show();
+                // 2. Tự động đồng bộ chuẩn hóa các nút bấm
+                if (c is Button btn)
+                {
+                    string t = btn.Text.ToLower().Trim();
+
+                    // Sửa lỗi nút bị cụt chữ và dính nút trên frmQuanLiTaiKhoan
+                    if (t.Contains("đặt lại mật"))
+                    {
+                        btn.Text = "Đặt lại mật khẩu";
+                        btn.Width = Math.Max(btn.Width, 136);
+
+                        // Nếu nút nằm cùng panel với các nút khác, tự động căn chỉnh khoảng cách để không bị dính nút
+                        if (btn.Parent != null)
+                        {
+                            foreach (Control sibling in btn.Parent.Controls)
+                            {
+                                if (sibling is Button sibBtn && sibBtn != btn && sibBtn.Left >= btn.Left && sibBtn.Left < btn.Right + 6)
+                                {
+                                    sibBtn.Left = btn.Right + 8;
+                                }
+                            }
+                        }
+                    }
+
+                    if (t.Contains("thêm") || t.Contains("cân bằng") || t.Contains("xuất") || t.Contains("tải"))
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Primary);
+                    }
+                    else if (t.Contains("lưu"))
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Secondary);
+                    }
+                    else if (t.Contains("xóa"))
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Danger);
+                    }
+                    else if (t.Contains("làm mới") || t.Contains("đóng"))
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Neutral);
+                    }
+                    else if (t.Contains("tìm") || t.Contains("xem") || t.Contains("tổng hợp"))
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Search);
+                    }
+                    else
+                    {
+                        ApplyButtonStyle(btn, ButtonType.Neutral);
+                    }
+                }
+
+                // 3. Tự động chuẩn hóa mọi DataGridView tìm thấy
+                if (c is DataGridView dgv)
+                {
+                    ApplyStandardGridStyle(dgv);
+                }
+
+                // 4. Chuẩn hóa GroupBox tiêu đề sắc nét
+                if (c is GroupBox gb)
+                {
+                    gb.Font = ControlBoldFont;
+                    gb.ForeColor = PrimaryDark;
+                }
+
+                // Đệ quy duyệt các control bên trong
+                if (c.HasChildren)
+                {
+                    QuetVaChuanHoaControls(c, tieuDe);
+                }
+            }
         }
         #endregion
     }

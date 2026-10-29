@@ -1,4 +1,4 @@
-﻿namespace QLKhoHang.GUI.Forms.Transactions
+namespace QLKhoHang.GUI.Forms.Transactions
 {
     partial class frmKiemKe
     {
@@ -47,10 +47,12 @@
             this.btnHuy = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.lblSoLuongLech = new System.Windows.Forms.Label();
+            this.picLogo = new System.Windows.Forms.PictureBox();
             this.pnlBottom.SuspendLayout();
             this.pnlTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKiemKe)).BeginInit();
             this.grpKiemKe.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlBottom
@@ -95,6 +97,7 @@
             // 
             // grpKiemKe
             // 
+            this.grpKiemKe.Controls.Add(this.picLogo);
             this.grpKiemKe.Controls.Add(this.btnTaiDuLieu);
             this.grpKiemKe.Controls.Add(this.lblNhanVien);
             this.grpKiemKe.Controls.Add(this.label5);
@@ -112,6 +115,17 @@
             this.grpKiemKe.TabIndex = 0;
             this.grpKiemKe.TabStop = false;
             this.grpKiemKe.Text = "Thông tin phiếu kiểm kê kho hàng";
+            // 
+            // picLogo
+            // 
+            this.picLogo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picLogo.Image = global::QLKhoHang.GUI.Properties.Resources.logo_khohang;
+            this.picLogo.Location = new System.Drawing.Point(860, 20);
+            this.picLogo.Name = "picLogo";
+            this.picLogo.Size = new System.Drawing.Size(80, 80);
+            this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picLogo.TabIndex = 11;
+            this.picLogo.TabStop = false;
             // 
             // label1
             // 
@@ -288,6 +302,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvKiemKe)).EndInit();
             this.grpKiemKe.ResumeLayout(false);
             this.grpKiemKe.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -298,6 +313,7 @@
         private System.Windows.Forms.Panel pnlTop;
         private System.Windows.Forms.DataGridView dgvKiemKe;
         private System.Windows.Forms.GroupBox grpKiemKe;
+        private System.Windows.Forms.PictureBox picLogo;
         private System.Windows.Forms.TextBox txtTenKho;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtMaKK;

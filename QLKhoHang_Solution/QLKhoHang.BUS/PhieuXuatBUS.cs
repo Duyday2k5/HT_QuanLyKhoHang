@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using QLKhoHang.DAL;
@@ -105,6 +105,20 @@ namespace QLKhoHang.BUS
                 throw new ArgumentException("Vui lòng chọn hoặc nhập Lý do xuất kho.");
             if (gioXuat == null || gioXuat.Count == 0)
                 throw new ArgumentException("Phiếu xuất phải có ít nhất 1 mặt hàng.");
+
+            // Kiểm tra bẫy chặn xuất vượt tồn ở tầng BUS trước khi ghi nhận phiếu xuất
+            foreach (ChiTietPhieuXuatDTO item in gioXuat)
+            {
+                if (item.SoLuongXuat <= 0)
+                    throw new ArgumentException($"Số lượng xuất của sản phẩm '{item.TenSP}' phải lớn hơn 0.");
+
+                int tonHienTai = LaySoLuongTonHienTai(item.MaSP);
+                if (item.SoLuongXuat > tonHienTai)
+                {
+                    throw new InvalidOperationException(
+                        $"Chặn xuất vượt tồn: Mặt hàng '{item.TenSP}' ({item.MaSP}) hiện chỉ còn tồn {tonHienTai} {item.DonViTinh}, không đủ để xuất {item.SoLuongXuat} {item.DonViTinh}!");
+                }
+            }
 
             phieu.TongTienXuat = TinhTongTien(gioXuat);
             PhieuXuatDAL.LuuPhieuXuat(phieu, gioXuat);

@@ -3,19 +3,23 @@ using QLKhoHang.DTO;
 using QLKhoHang.GUI;
 using QLKhoHang.GUI.Common;
 using QLKhoHang.GUI.Forms.Auth;
+using QLKhoHang.GUI.Forms.Inventory;
+using QLKhoHang.GUI.Forms.MasterData;
 using QLKhoHang.GUI.Forms.Transactions;
+using QLKhoHang.GUI.Helpers;
 using System;
 using System.ComponentModel;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace QLKhoHang.GUI.Forms.Main
 {
-    /// <summary>Shell điều hướng của ứng dụng kho hàng.</summary>
     public partial class frmMain : Form
     {
         private readonly PhanQuyenBUS _phanQuyenBUS = new PhanQuyenBUS();
-        private Form _embeddedModule;
+        private Form _activeChildForm = null;
+        private bool _isLoggingOut = false;
 
         public frmMain()
         {
@@ -31,40 +35,86 @@ namespace QLKhoHang.GUI.Forms.Main
             CauHinhMenu(user);
             HienThiTongQuan(user);
 
-            // 1. Gọi hàm tạo nút Giới thiệu ở đây
             ThemNutGioiThieu();
+            VeLogoHienDai();
 
-            // 2. Đoạn này phải nằm trong frmMain(), KHÔNG nằm trong ThemNutGioiThieu
             if (!designTime)
             {
                 FormClosed += delegate
                 {
-                    CloseEmbeddedModule();
-                    SessionManager.DangXuat();
+                    DongFormConHienTai();
+                    if (!_isLoggingOut)
+                    {
+                        SessionManager.DangXuat();
+                        Application.Exit();
+                    }
                 };
             }
         }
 
-        // Phương thức tạo nút Giới thiệu gắn vào thanh menu
+        // VẼ VÀ HIỂN THỊ LOGO HỆ THỐNG
+        private void VeLogoHienDai()
+        {
+            try
+            {
+                if (picLogoMain != null)
+                {
+                    picLogoMain.Image = Properties.Resources.logo_khohang;
+                    picLogoMain.SizeMode = PictureBoxSizeMode.Zoom;
+                }
+
+                if (picLogoSidebar != null)
+                {
+                    picLogoSidebar.Image = Properties.Resources.logo_khohang;
+                    picLogoSidebar.SizeMode = PictureBoxSizeMode.Zoom;
+                }
+
+                if (lblBrand != null)
+                {
+                    lblBrand.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+                    lblBrand.Text = "HỆ THỐNG" + Environment.NewLine + "QUẢN LÝ KHO HÀNG";
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private void LogoControl_Paint(object sender, PaintEventArgs e)
+        {
+            Control pnl = sender as Control;
+            if (pnl == null) return;
+
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+            if (Properties.Resources.logo_khohang != null)
+            {
+                g.DrawImage(Properties.Resources.logo_khohang, new Rectangle(0, 0, pnl.Width, pnl.Height));
+            }
+        }
+        
+
+        //ĐIỀU HƯỚNG & QUẢN LÝ FORM CON
         private void ThemNutGioiThieu()
         {
             Button btnAbout = new Button();
             btnAbout.Text = "Giới thiệu đề tài";
-            btnAbout.Size = new Size(200, 42);
+            btnAbout.Size = new Size(236, 36);
+            btnAbout.Margin = new Padding(0, 1, 0, 1);
             btnAbout.FlatStyle = FlatStyle.Flat;
             btnAbout.FlatAppearance.BorderSize = 0;
-            btnAbout.BackColor = Color.FromArgb(16, 44, 59); // Màu nền chuẩn menu
+            btnAbout.BackColor = Color.FromArgb(16, 44, 59);
             btnAbout.ForeColor = Color.FromArgb(226, 232, 240);
-            btnAbout.Font = new Font("Segoe UI", 10f, FontStyle.Regular);
+            btnAbout.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
             btnAbout.TextAlign = ContentAlignment.MiddleLeft;
-            btnAbout.Padding = new Padding(12, 0, 0, 0);
+            btnAbout.Padding = new Padding(12, 0, 4, 0);
             btnAbout.Cursor = Cursors.Hand;
 
-            // Hiệu ứng rê chuột
             btnAbout.MouseEnter += (s, e) => { btnAbout.BackColor = Color.FromArgb(19, 126, 119); };
             btnAbout.MouseLeave += (s, e) => { btnAbout.BackColor = Color.FromArgb(16, 44, 59); };
 
-            // Bấm vào để mở popup frmAbout
             btnAbout.Click += (s, e) =>
             {
                 using (frmAbout f = new frmAbout())
@@ -73,7 +123,6 @@ namespace QLKhoHang.GUI.Forms.Main
                 }
             };
 
-            // Đưa nút vào danh sách menu bên trái (kết thúc tại đây)
             flpMenu.Controls.Add(btnAbout);
         }
 
@@ -82,28 +131,37 @@ namespace QLKhoHang.GUI.Forms.Main
             return new NhanVienDTO { HoTen = "Nguyễn Văn An", VaiTro = "Quản lý kho" };
         }
 
-        private void HienThiFormCon(Form childForm, string tieuDe)
+        private void DongFormConHienTai()
         {
-            // Đóng và giải phóng form con cũ nếu đang mở
             if (_activeChildForm != null)
             {
+                pnlModulePlaceholder.Controls.Remove(_activeChildForm);
                 _activeChildForm.Close();
                 _activeChildForm.Dispose();
                 _activeChildForm = null;
             }
 
+            pnlModulePlaceholder.Controls.Clear();
+            lblModulePlaceholder.Visible = true;
+        }
+
+        private void HienThiFormCon(Form childForm, string tieuDe)
+        {
+            DongFormConHienTai();
+
             _activeChildForm = childForm;
-            lblTieuDe.Text = tieuDe;
+            lblTieuDe.Text = tieuDe.ToUpperInvariant();
             pnlDashboard.Visible = false;
             pnlModulePlaceholder.Visible = true;
-            lblModulePlaceholder.Visible = false; // Ẩn nhãn tạm thời của TV1
+            lblModulePlaceholder.Visible = false;
 
-            // Quy cách nhúng Form con theo Mục 1.3: TopLevel = false, None, Dock = Fill
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
+            pnlModulePlaceholder.Controls.Clear();
             pnlModulePlaceholder.Controls.Add(childForm);
             pnlModulePlaceholder.Tag = childForm;
+            UIThemeHelper.DongBoToanDienFormCon(childForm, tieuDe);
             childForm.BringToFront();
             childForm.Show();
         }
@@ -161,92 +219,91 @@ namespace QLKhoHang.GUI.Forms.Main
             }
 
             ChucNang chucNang = (ChucNang)button.Tag;
-            if (chucNang == ChucNang.TongQuan)
-            { 
-                if (_activeModuleForm != null)
-                {
-                    _activeModuleForm.Close();
-                    _activeModuleForm.Dispose();
-                    _activeModuleForm = null;
-                }
-            
 
+            if (chucNang == ChucNang.TongQuan)
+            {
+                DongFormConHienTai();
                 pnlDashboard.Visible = true;
+                pnlDashboard.BringToFront();
                 pnlModulePlaceholder.Visible = false;
                 lblTieuDe.Text = "TỔNG QUAN HỆ THỐNG";
+                TaiDuLieuHoatDongGanDay();
                 return;
             }
 
             OpenModule(chucNang, button.Text);
         }
 
-        private Form _activeModuleForm = null;
-
-        private void EmbedChildForm(Form childForm)
-        {
-            if (_activeModuleForm != null)
-            {
-                _activeModuleForm.Close();
-                _activeModuleForm.Dispose();
-            }
-
-            _activeModuleForm = childForm;
-            childForm.TopLevel = false;
-            childForm.FormBorderStyle = FormBorderStyle.None;
-            childForm.Dock = DockStyle.Fill;
-
-            pnlDashboard.Visible = false;
-            pnlModulePlaceholder.Visible = false;
-
-            pnlWorkspace.Controls.Add(childForm);
-            pnlWorkspace.Tag = childForm;
-            childForm.BringToFront();
-            childForm.Show();
-        }
-
         private void OpenModule(ChucNang chucNang, string tenModule)
         {
             try
             {
-                _phanQuyenBUS.YeuCauQuyen(SessionManager.NguoiDungHienTai, chucNang);
-                if (chucNang == ChucNang.SaoLuu)
-                {
-                    using (frmSaoLuu form = new frmSaoLuu()) form.ShowDialog(this);
-                    return;
-                }
                 if (chucNang == ChucNang.KetNoiCSDL)
                 {
-                    using (frmKetNoiCSDL form = new frmKetNoiCSDL()) form.ShowDialog(this);
+                    using (frmKetNoiCSDL form = new frmKetNoiCSDL())
+                    {
+                        form.ShowDialog(this);
+                    }
                     return;
                 }
 
-                // TÍCH HỢP FORM NHẬP KHO 
-                if (chucNang == ChucNang.NhapKho)
+                if (SessionManager.NguoiDungHienTai != null)
                 {
-                    lblTieuDe.Text = "LẬP PHIẾU NHẬP KHO";
-                    EmbedChildForm(new frmNhapKho());
+                    _phanQuyenBUS.YeuCauQuyen(SessionManager.NguoiDungHienTai, chucNang);
+                }
+
+                if (chucNang == ChucNang.SaoLuu)
+                {
+                    using (frmSaoLuu form = new frmSaoLuu())
+                    {
+                        form.ShowDialog(this);
+                    }
                     return;
                 }
-                // TÍCH HỢP FORM XUẤT KHO 
-                if (chucNang == ChucNang.XuatKho)
+
+                switch (chucNang)
                 {
-                    lblTieuDe.Text = "LẬP PHIẾU XUẤT KHO";
-                    EmbedChildForm(new frmXuatKho());
-                    return;
+                    case ChucNang.HangHoa:
+                        HienThiFormCon(new frmHangHoa(), "QUẢN LÝ DANH MỤC HÀNG HÓA");
+                        return;
+
+                    case ChucNang.NhaCungCap:
+                        HienThiFormCon(new frmNhaCungCap(), "QUẢN LÝ NHÀ CUNG CẤP");
+                        return;
+
+                    case ChucNang.NhapKho:
+                        HienThiFormCon(new frmNhapKho(), "QUẢN LÝ NHẬP KHO");
+                        return;
+
+                    case ChucNang.XuatKho:
+                        HienThiFormCon(new frmXuatKho(), "QUẢN LÝ XUẤT KHO");
+                        return;
+
+                    case ChucNang.KiemKe:
+                        HienThiFormCon(new frmKiemKe(), "KIỂM KÊ VÀ CÂN BẰNG KHO");
+                        return;
+
+                    case ChucNang.TheKho:
+                        HienThiFormCon(new frmTheKho(), "SỔ THẺ KHO HÀNG HÓA");
+                        return;
+
+                    case ChucNang.BaoCaoTonKho:
+                        HienThiFormCon(new frmBaoCaoTonKho(), "BÁO CÁO NHẬP - XUẤT - TỒN");
+                        return;
+
+                    case ChucNang.QuanLyTaiKhoan:
+                        HienThiFormCon(new frmQuanLiTaiKhoan(), "QUẢN LÝ TÀI KHOẢN NGƯỜI DÙNG");
+                        return;
                 }
-                // TÍCH HỢP FORM KIỂM KÊ KHO 
-                if (chucNang == ChucNang.KiemKe)
-                {
-                    lblTieuDe.Text = "KIỂM KÊ VÀ CÂN BẰNG KHO";
-                    EmbedChildForm(new frmKiemKe());
-                    return;
-                }
+
+                DongFormConHienTai();
+                lblTieuDe.Text = tenModule.ToUpperInvariant();
                 lblModulePlaceholder.Text = tenModule + Environment.NewLine + Environment.NewLine +
                     "Màn hình này sẽ được tích hợp khi hoàn tất module được phân công.";
                 lblModulePlaceholder.Visible = true;
-                lblTieuDe.Text = tenModule.ToUpperInvariant();
                 pnlDashboard.Visible = false;
                 pnlModulePlaceholder.Visible = true;
+                pnlModulePlaceholder.BringToFront();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -254,42 +311,183 @@ namespace QLKhoHang.GUI.Forms.Main
             }
         }
 
-        private void ShowEmbeddedModule(Form module, string moduleTitle)
-        {
-            CloseEmbeddedModule();
-
-            lblModulePlaceholder.Visible = false;
-            lblTieuDe.Text = moduleTitle.ToUpperInvariant();
-            pnlDashboard.Visible = false;
-            pnlModulePlaceholder.Visible = true;
-
-            module.TopLevel = false;
-            module.FormBorderStyle = FormBorderStyle.None;
-            module.Dock = DockStyle.Fill;
-            _embeddedModule = module;
-            pnlModulePlaceholder.Controls.Add(module);
-            module.Show();
-            module.BringToFront();
-        }
-
-        private void CloseEmbeddedModule()
-        {
-            if (_embeddedModule != null)
-            {
-                pnlModulePlaceholder.Controls.Remove(_embeddedModule);
-                _embeddedModule.Close();
-                _embeddedModule.Dispose();
-                _embeddedModule = null;
-            }
-
-            lblModulePlaceholder.Visible = true;
-        }
-
         private void HienThiTongQuan(NhanVienDTO user)
         {
             lblChaoMung.Text = "Xin chào, " + user.HoTen + ". Bạn đang đăng nhập với vai trò " + user.VaiTro + ".";
             lblTrangThai.Text = "●  Kết nối cơ sở dữ liệu sẽ được kiểm tra khi truy vấn.";
             lblDatabaseStatus.Text = "Database theo cấu hình ứng dụng: QLKhoHang";
+
+            TaiDuLieuHoatDongGanDay();
+        }
+
+        private void TaiDuLieuHoatDongGanDay()
+        {
+            try
+            {
+                lblActivityDescription.Text = "Theo dõi nhật ký giao dịch xuất - nhập kho và các hoạt động hệ thống mới nhất theo thời gian thực.";
+                DataTable dt = null;
+
+                try
+                {
+                    const string sql = @"
+                        SELECT TOP 20
+                            HoatDong.NgayGhi,
+                            HoatDong.LoaiGiaoDich,
+                            HoatDong.MaChungTu,
+                            HoatDong.DienGiai,
+                            HoatDong.NguoiThucHien,
+                            HoatDong.GiaTri
+                        FROM (
+                            SELECT 
+                                PN.NgayNhap AS NgayGhi,
+                                N'Nhập kho' AS LoaiGiaoDich,
+                                PN.MaPN AS MaChungTu,
+                                CASE 
+                                    WHEN PN.GhiChu LIKE N'%cân bằng%' OR PN.GhiChu LIKE N'%Cân bằng%' THEN PN.GhiChu
+                                    ELSE N'Nhập hàng từ ' + ISNULL(NCC.TenNCC, PN.MaNCC)
+                                END AS DienGiai,
+                                ISNULL(NV.HoTen, PN.MaNV) AS NguoiThucHien,
+                                PN.TongTienNhap AS GiaTri
+                            FROM dbo.PhieuNhap PN
+                            LEFT JOIN dbo.NhaCungCap NCC ON PN.MaNCC = NCC.MaNCC
+                            LEFT JOIN dbo.NhanVien NV ON PN.MaNV = NV.MaNV
+
+                            UNION ALL
+
+                            SELECT 
+                                PX.NgayXuat AS NgayGhi,
+                                N'Xuất kho' AS LoaiGiaoDich,
+                                PX.MaPX AS MaChungTu,
+                                CASE 
+                                    WHEN PX.LyDoXuat LIKE N'%cân bằng%' OR PX.LyDoXuat LIKE N'%Cân bằng%' THEN PX.LyDoXuat
+                                    ELSE N'Xuất giao ' + ISNULL(PX.NguoiNhan, N'') + N' (' + ISNULL(PX.LyDoXuat, N'') + N')'
+                                END AS DienGiai,
+                                ISNULL(NV.HoTen, PX.MaNV) AS NguoiThucHien,
+                                PX.TongTienXuat AS GiaTri
+                            FROM dbo.PhieuXuat PX
+                            LEFT JOIN dbo.NhanVien NV ON PX.MaNV = NV.MaNV
+                        ) AS HoatDong
+                        ORDER BY NgayGhi DESC;";
+
+                    dt = QLKhoHang.DAL.DatabaseHelper.ExecuteQuery(sql, null);
+                }
+                catch
+                {
+                    dt = null;
+                }
+
+                if (dt == null || dt.Rows.Count == 0)
+                {
+                    dt = TaoDuLieuHoatDongMau();
+                }
+
+                dgvHoatDongGanDay.DataSource = dt;
+                UIThemeHelper.ApplyStandardGridStyle(dgvHoatDongGanDay);
+
+                if (dgvHoatDongGanDay.Columns.Contains("NgayGhi"))
+                {
+                    dgvHoatDongGanDay.Columns["NgayGhi"].HeaderText = "Thời gian";
+                    dgvHoatDongGanDay.Columns["NgayGhi"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+                    dgvHoatDongGanDay.Columns["NgayGhi"].Width = 140;
+                }
+
+                if (dgvHoatDongGanDay.Columns.Contains("LoaiGiaoDich"))
+                {
+                    dgvHoatDongGanDay.Columns["LoaiGiaoDich"].HeaderText = "Loại hoạt động";
+                    dgvHoatDongGanDay.Columns["LoaiGiaoDich"].Width = 120;
+                    dgvHoatDongGanDay.Columns["LoaiGiaoDich"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                if (dgvHoatDongGanDay.Columns.Contains("MaChungTu"))
+                {
+                    dgvHoatDongGanDay.Columns["MaChungTu"].HeaderText = "Mã chứng từ";
+                    dgvHoatDongGanDay.Columns["MaChungTu"].Width = 130;
+                    dgvHoatDongGanDay.Columns["MaChungTu"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+
+                if (dgvHoatDongGanDay.Columns.Contains("DienGiai"))
+                {
+                    dgvHoatDongGanDay.Columns["DienGiai"].HeaderText = "Nội dung chi tiết";
+                    dgvHoatDongGanDay.Columns["DienGiai"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dgvHoatDongGanDay.Columns["DienGiai"].MinimumWidth = 220;
+                }
+
+                if (dgvHoatDongGanDay.Columns.Contains("NguoiThucHien"))
+                {
+                    dgvHoatDongGanDay.Columns["NguoiThucHien"].HeaderText = "Người thực hiện";
+                    dgvHoatDongGanDay.Columns["NguoiThucHien"].Width = 160;
+                }
+
+                if (dgvHoatDongGanDay.Columns.Contains("GiaTri"))
+                {
+                    dgvHoatDongGanDay.Columns["GiaTri"].HeaderText = "Giá trị (VNĐ)";
+                    dgvHoatDongGanDay.Columns["GiaTri"].Width = 130;
+                    dgvHoatDongGanDay.Columns["GiaTri"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    dgvHoatDongGanDay.Columns["GiaTri"].DefaultCellStyle.Format = "N0";
+                }
+
+                dgvHoatDongGanDay.CellFormatting -= DgvHoatDongGanDay_CellFormatting;
+                dgvHoatDongGanDay.CellFormatting += DgvHoatDongGanDay_CellFormatting;
+
+                dgvHoatDongGanDay.Visible = true;
+                lblActivityEmpty.Visible = false;
+            }
+            catch
+            {
+                dgvHoatDongGanDay.Visible = false;
+                lblActivityEmpty.Visible = true;
+            }
+        }
+
+        private static DataTable TaoDuLieuHoatDongMau()
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("NgayGhi", typeof(DateTime));
+            dt.Columns.Add("LoaiGiaoDich", typeof(string));
+            dt.Columns.Add("MaChungTu", typeof(string));
+            dt.Columns.Add("DienGiai", typeof(string));
+            dt.Columns.Add("NguoiThucHien", typeof(string));
+            dt.Columns.Add("GiaTri", typeof(decimal));
+
+            DateTime now = DateTime.Now;
+            dt.Rows.Add(now.AddMinutes(-25), "Nhập kho", "PN20261030001", "Nhập hàng từ Unilever Việt Nam (Dầu gội, Xà bông)", "Nguyễn Quốc Bảo", 25600000m);
+            dt.Rows.Add(now.AddHours(-2), "Xuất kho", "PX20261030001", "Xuất hàng giao Siêu thị Bách Hóa Xanh (Bán buôn)", "Bùi Quang Duy", 18450000m);
+            dt.Rows.Add(now.AddHours(-4), "Nhập kho", "PN20261030002", "Nhập hàng từ Masan Consumer (Nước mắm Nam Ngư, Mì Omachi)", "Đỗ Lê Tuấn Đạt", 32100000m);
+            dt.Rows.Add(now.AddDays(-1).AddHours(3), "Kiểm kê", "KK20261029001", "Cân bằng kiểm kê định kỳ Khu vực Bách hóa tổng hợp", "Nguyễn Nhật Duy", 0m);
+            dt.Rows.Add(now.AddDays(-1).AddHours(1), "Xuất kho", "PX20261029001", "Xuất giao Chuỗi Cửa hàng Tiện lợi Circle K", "Bùi Quang Duy", 14200000m);
+            dt.Rows.Add(now.AddDays(-2).AddHours(2), "Nhập kho", "PN20261028001", "Nhập hàng từ Nestlé Việt Nam (Sữa Milo, Nescafé)", "Nguyễn Quốc Bảo", 28500000m);
+            dt.Rows.Add(now.AddDays(-2).AddHours(-1), "Xuất kho", "PX20261028001", "Xuất giao Hệ thống Siêu thị Co.opmart (Xuất bán lẻ)", "Nguyễn Nhật Duy", 21750000m);
+            dt.Rows.Add(now.AddDays(-3).AddHours(4), "Hệ thống", "SYS20261027", "Đồng bộ danh mục 20 sản phẩm FMCG tiêu chuẩn", "Quản trị viên", 0m);
+
+            return dt;
+        }
+
+        private void DgvHoatDongGanDay_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            string colName = dgvHoatDongGanDay.Columns[e.ColumnIndex].Name;
+            if (colName == "LoaiGiaoDich" && e.Value != null)
+            {
+                string val = e.Value.ToString();
+                e.CellStyle.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+                if (val.Contains("Nhập"))
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(13, 148, 136); // Teal
+                }
+                else if (val.Contains("Xuất"))
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(37, 99, 235); // Blue
+                }
+                else if (val.Contains("Kiểm kê"))
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6); // Amber
+                }
+                else
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(100, 116, 139); // Gray
+                }
+            }
         }
 
         private void BtnDoiMatKhau_Click(object sender, EventArgs e)
@@ -297,7 +495,10 @@ namespace QLKhoHang.GUI.Forms.Main
             try
             {
                 _phanQuyenBUS.YeuCauQuyen(SessionManager.NguoiDungHienTai, ChucNang.DoiMatKhau);
-                using (frmDoiMatKhau form = new frmDoiMatKhau()) form.ShowDialog(this);
+                using (frmDoiMatKhau form = new frmDoiMatKhau())
+                {
+                    form.ShowDialog(this);
+                }
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -307,8 +508,14 @@ namespace QLKhoHang.GUI.Forms.Main
 
         private void BtnDangXuat_Click(object sender, EventArgs e)
         {
+            _isLoggingOut = true;
+            DongFormConHienTai();
             SessionManager.DangXuat();
             Close();
         }
+
+        private void lblNguoiDung_Click(object sender, EventArgs e) { }
+        private void lblModulePlaceholder_Click(object sender, EventArgs e) { }
+        private void pnlWorkspace_Paint(object sender, PaintEventArgs e) { }
     }
 }

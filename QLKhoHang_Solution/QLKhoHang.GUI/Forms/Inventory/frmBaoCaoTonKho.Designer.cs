@@ -30,22 +30,16 @@ namespace QLKhoHang.GUI.Forms.Inventory
         private System.Windows.Forms.Label lblTongSLXuat;
         private System.Windows.Forms.Label lblTongGiaTriTon;
         private System.Windows.Forms.SplitContainer splitBaoCao;
+        private System.Windows.Forms.Panel pnlTableToolbar;
+        private System.Windows.Forms.Label lblTableTitle;
+        private System.Windows.Forms.Button btnToanManHinhBang;
+        private System.Windows.Forms.Button btnXemCaHaiBang;
         private System.Windows.Forms.DataGridView dgvBaoCaoTonKho;
-        private System.Windows.Forms.DataGridViewTextBoxColumn STT;
-        private System.Windows.Forms.DataGridViewTextBoxColumn MaSP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TenSP;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LoaiHang;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DonViTinh;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TonDau;
-        private System.Windows.Forms.DataGridViewTextBoxColumn SLNhap;
-        private System.Windows.Forms.DataGridViewTextBoxColumn SLXuat;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TonCuoi;
-        private System.Windows.Forms.DataGridViewTextBoxColumn GiaTriTon;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TrangThai;
+        private System.Windows.Forms.Panel pnlChartToolbar;
+        private System.Windows.Forms.Label lblChartHeader;
+        private System.Windows.Forms.Button btnToanManHinhChart;
+        private System.Windows.Forms.Button btnXemCaHaiChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartTopHangHoa;
-        private System.Windows.Forms.DataVisualization.Charting.ChartArea chartAreaTop;
-        private System.Windows.Forms.DataVisualization.Charting.Legend chartLegend;
-        private System.Windows.Forms.DataVisualization.Charting.Title chartTitle;
         private System.Windows.Forms.DataVisualization.Charting.Series seriesSoLuongNhap;
         private System.Windows.Forms.DataVisualization.Charting.Series seriesSoLuongXuat;
 
@@ -96,7 +90,15 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.lblTongGiaTriTon = new System.Windows.Forms.Label();
             this.splitBaoCao = new System.Windows.Forms.SplitContainer();
             this.dgvBaoCaoTonKho = new System.Windows.Forms.DataGridView();
+            this.pnlTableToolbar = new System.Windows.Forms.Panel();
+            this.btnXemCaHaiBang = new System.Windows.Forms.Button();
+            this.btnToanManHinhBang = new System.Windows.Forms.Button();
+            this.lblTableTitle = new System.Windows.Forms.Label();
             this.chartTopHangHoa = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.pnlChartToolbar = new System.Windows.Forms.Panel();
+            this.btnXemCaHaiChart = new System.Windows.Forms.Button();
+            this.btnToanManHinhChart = new System.Windows.Forms.Button();
+            this.lblChartHeader = new System.Windows.Forms.Label();
             this.grpBoLoc.SuspendLayout();
             this.tlpBoLoc.SuspendLayout();
             this.pnlThongKe.SuspendLayout();
@@ -110,19 +112,21 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.splitBaoCao.Panel2.SuspendLayout();
             this.splitBaoCao.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBaoCaoTonKho)).BeginInit();
+            this.pnlTableToolbar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartTopHangHoa)).BeginInit();
+            this.pnlChartToolbar.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpBoLoc
             // 
             this.grpBoLoc.Controls.Add(this.tlpBoLoc);
             this.grpBoLoc.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpBoLoc.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grpBoLoc.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpBoLoc.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.grpBoLoc.Location = new System.Drawing.Point(12, 12);
             this.grpBoLoc.Name = "grpBoLoc";
-            this.grpBoLoc.Padding = new System.Windows.Forms.Padding(12, 24, 12, 8);
-            this.grpBoLoc.Size = new System.Drawing.Size(1443, 126);
+            this.grpBoLoc.Padding = new System.Windows.Forms.Padding(10, 4, 10, 4);
+            this.grpBoLoc.Size = new System.Drawing.Size(1443, 84);
             this.grpBoLoc.TabIndex = 0;
             this.grpBoLoc.TabStop = false;
             this.grpBoLoc.Text = "Bộ lọc báo cáo";
@@ -130,12 +134,12 @@ namespace QLKhoHang.GUI.Forms.Inventory
             // tlpBoLoc
             // 
             this.tlpBoLoc.ColumnCount = 6;
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16F));
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16F));
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
-            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
+            this.tlpBoLoc.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 15F));
             this.tlpBoLoc.Controls.Add(this.lblTuNgayTitle, 0, 0);
             this.tlpBoLoc.Controls.Add(this.lblDenNgayTitle, 1, 0);
             this.tlpBoLoc.Controls.Add(this.lblLoaiHangTitle, 2, 0);
@@ -147,22 +151,22 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.tlpBoLoc.Controls.Add(this.btnLocBaoCao, 4, 1);
             this.tlpBoLoc.Controls.Add(this.btnXuatExcel, 5, 1);
             this.tlpBoLoc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpBoLoc.Location = new System.Drawing.Point(12, 56);
+            this.tlpBoLoc.Location = new System.Drawing.Point(10, 27);
             this.tlpBoLoc.Name = "tlpBoLoc";
             this.tlpBoLoc.RowCount = 2;
-            this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpBoLoc.Size = new System.Drawing.Size(1419, 62);
+            this.tlpBoLoc.Size = new System.Drawing.Size(1423, 53);
             this.tlpBoLoc.TabIndex = 0;
             // 
             // lblTuNgayTitle
             // 
             this.lblTuNgayTitle.AutoSize = true;
             this.lblTuNgayTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblTuNgayTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTuNgayTitle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTuNgayTitle.Location = new System.Drawing.Point(3, 0);
             this.lblTuNgayTitle.Name = "lblTuNgayTitle";
-            this.lblTuNgayTitle.Size = new System.Drawing.Size(221, 25);
+            this.lblTuNgayTitle.Size = new System.Drawing.Size(207, 20);
             this.lblTuNgayTitle.TabIndex = 0;
             this.lblTuNgayTitle.Text = "Từ ngày";
             this.lblTuNgayTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -171,10 +175,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             // 
             this.lblDenNgayTitle.AutoSize = true;
             this.lblDenNgayTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblDenNgayTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDenNgayTitle.Location = new System.Drawing.Point(230, 0);
+            this.lblDenNgayTitle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDenNgayTitle.Location = new System.Drawing.Point(216, 0);
             this.lblDenNgayTitle.Name = "lblDenNgayTitle";
-            this.lblDenNgayTitle.Size = new System.Drawing.Size(221, 25);
+            this.lblDenNgayTitle.Size = new System.Drawing.Size(207, 20);
             this.lblDenNgayTitle.TabIndex = 1;
             this.lblDenNgayTitle.Text = "Đến ngày";
             this.lblDenNgayTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -183,10 +187,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             // 
             this.lblLoaiHangTitle.AutoSize = true;
             this.lblLoaiHangTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblLoaiHangTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoaiHangTitle.Location = new System.Drawing.Point(457, 0);
+            this.lblLoaiHangTitle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoaiHangTitle.Location = new System.Drawing.Point(429, 0);
             this.lblLoaiHangTitle.Name = "lblLoaiHangTitle";
-            this.lblLoaiHangTitle.Size = new System.Drawing.Size(235, 25);
+            this.lblLoaiHangTitle.Size = new System.Drawing.Size(250, 20);
             this.lblLoaiHangTitle.TabIndex = 2;
             this.lblLoaiHangTitle.Text = "Nhóm hàng";
             this.lblLoaiHangTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -195,10 +199,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             // 
             this.lblTimKiemTitle.AutoSize = true;
             this.lblTimKiemTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblTimKiemTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTimKiemTitle.Location = new System.Drawing.Point(698, 0);
+            this.lblTimKiemTitle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTimKiemTitle.Location = new System.Drawing.Point(685, 0);
             this.lblTimKiemTitle.Name = "lblTimKiemTitle";
-            this.lblTimKiemTitle.Size = new System.Drawing.Size(235, 25);
+            this.lblTimKiemTitle.Size = new System.Drawing.Size(307, 20);
             this.lblTimKiemTitle.TabIndex = 3;
             this.lblTimKiemTitle.Text = "Tìm mã hoặc tên sản phẩm";
             this.lblTimKiemTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -209,9 +213,9 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.dtpTuNgay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dtpTuNgay.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtpTuNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpTuNgay.Location = new System.Drawing.Point(3, 28);
+            this.dtpTuNgay.Location = new System.Drawing.Point(3, 23);
             this.dtpTuNgay.Name = "dtpTuNgay";
-            this.dtpTuNgay.Size = new System.Drawing.Size(221, 30);
+            this.dtpTuNgay.Size = new System.Drawing.Size(207, 30);
             this.dtpTuNgay.TabIndex = 4;
             // 
             // dtpDenNgay
@@ -220,9 +224,9 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.dtpDenNgay.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dtpDenNgay.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtpDenNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpDenNgay.Location = new System.Drawing.Point(230, 28);
+            this.dtpDenNgay.Location = new System.Drawing.Point(216, 23);
             this.dtpDenNgay.Name = "dtpDenNgay";
-            this.dtpDenNgay.Size = new System.Drawing.Size(221, 30);
+            this.dtpDenNgay.Size = new System.Drawing.Size(207, 30);
             this.dtpDenNgay.TabIndex = 5;
             // 
             // cboLoaiHang
@@ -231,18 +235,18 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.cboLoaiHang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboLoaiHang.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboLoaiHang.FormattingEnabled = true;
-            this.cboLoaiHang.Location = new System.Drawing.Point(457, 28);
+            this.cboLoaiHang.Location = new System.Drawing.Point(429, 23);
             this.cboLoaiHang.Name = "cboLoaiHang";
-            this.cboLoaiHang.Size = new System.Drawing.Size(235, 31);
+            this.cboLoaiHang.Size = new System.Drawing.Size(250, 31);
             this.cboLoaiHang.TabIndex = 6;
             // 
             // txtTimKiem
             // 
             this.txtTimKiem.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTimKiem.Location = new System.Drawing.Point(698, 28);
+            this.txtTimKiem.Location = new System.Drawing.Point(685, 23);
             this.txtTimKiem.Name = "txtTimKiem";
-            this.txtTimKiem.Size = new System.Drawing.Size(235, 30);
+            this.txtTimKiem.Size = new System.Drawing.Size(307, 30);
             this.txtTimKiem.TabIndex = 7;
             // 
             // btnLocBaoCao
@@ -255,9 +259,9 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.btnLocBaoCao.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLocBaoCao.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLocBaoCao.ForeColor = System.Drawing.Color.White;
-            this.btnLocBaoCao.Location = new System.Drawing.Point(939, 28);
+            this.btnLocBaoCao.Location = new System.Drawing.Point(998, 23);
             this.btnLocBaoCao.Name = "btnLocBaoCao";
-            this.btnLocBaoCao.Size = new System.Drawing.Size(235, 31);
+            this.btnLocBaoCao.Size = new System.Drawing.Size(207, 27);
             this.btnLocBaoCao.TabIndex = 8;
             this.btnLocBaoCao.Text = "TỔNG HỢP BÁO CÁO";
             this.btnLocBaoCao.UseVisualStyleBackColor = false;
@@ -274,9 +278,9 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.btnXuatExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXuatExcel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnXuatExcel.ForeColor = System.Drawing.Color.White;
-            this.btnXuatExcel.Location = new System.Drawing.Point(1180, 28);
+            this.btnXuatExcel.Location = new System.Drawing.Point(1211, 23);
             this.btnXuatExcel.Name = "btnXuatExcel";
-            this.btnXuatExcel.Size = new System.Drawing.Size(236, 31);
+            this.btnXuatExcel.Size = new System.Drawing.Size(209, 27);
             this.btnXuatExcel.TabIndex = 9;
             this.btnXuatExcel.Text = "XUẤT EXCEL (.XLSX)";
             this.btnXuatExcel.UseVisualStyleBackColor = false;
@@ -287,10 +291,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.pnlThongKe.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.pnlThongKe.Controls.Add(this.tlpThongKe);
             this.pnlThongKe.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlThongKe.Location = new System.Drawing.Point(12, 138);
+            this.pnlThongKe.Location = new System.Drawing.Point(12, 96);
             this.pnlThongKe.Name = "pnlThongKe";
-            this.pnlThongKe.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlThongKe.Size = new System.Drawing.Size(1443, 92);
+            this.pnlThongKe.Padding = new System.Windows.Forms.Padding(4);
+            this.pnlThongKe.Size = new System.Drawing.Size(1443, 72);
             this.pnlThongKe.TabIndex = 1;
             // 
             // tlpThongKe
@@ -305,11 +309,11 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.tlpThongKe.Controls.Add(this.pnlKpiXuat, 2, 0);
             this.tlpThongKe.Controls.Add(this.pnlKpiGiaTri, 3, 0);
             this.tlpThongKe.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpThongKe.Location = new System.Drawing.Point(8, 8);
+            this.tlpThongKe.Location = new System.Drawing.Point(4, 4);
             this.tlpThongKe.Name = "tlpThongKe";
             this.tlpThongKe.RowCount = 1;
             this.tlpThongKe.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpThongKe.Size = new System.Drawing.Size(1427, 76);
+            this.tlpThongKe.Size = new System.Drawing.Size(1435, 64);
             this.tlpThongKe.TabIndex = 0;
             // 
             // pnlKpiMaHang
@@ -322,7 +326,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.pnlKpiMaHang.Location = new System.Drawing.Point(3, 0);
             this.pnlKpiMaHang.Margin = new System.Windows.Forms.Padding(3, 0, 6, 0);
             this.pnlKpiMaHang.Name = "pnlKpiMaHang";
-            this.pnlKpiMaHang.Size = new System.Drawing.Size(347, 76);
+            this.pnlKpiMaHang.Size = new System.Drawing.Size(349, 64);
             this.pnlKpiMaHang.TabIndex = 0;
             // 
             // lblTieuDeTongMaHang
@@ -354,10 +358,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.pnlKpiNhap.Controls.Add(this.lblTieuDeTongSLNhap);
             this.pnlKpiNhap.Controls.Add(this.lblTongSLNhap);
             this.pnlKpiNhap.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlKpiNhap.Location = new System.Drawing.Point(359, 0);
+            this.pnlKpiNhap.Location = new System.Drawing.Point(361, 0);
             this.pnlKpiNhap.Margin = new System.Windows.Forms.Padding(3, 0, 6, 0);
             this.pnlKpiNhap.Name = "pnlKpiNhap";
-            this.pnlKpiNhap.Size = new System.Drawing.Size(347, 76);
+            this.pnlKpiNhap.Size = new System.Drawing.Size(349, 64);
             this.pnlKpiNhap.TabIndex = 1;
             // 
             // lblTieuDeTongSLNhap
@@ -389,10 +393,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.pnlKpiXuat.Controls.Add(this.lblTieuDeTongSLXuat);
             this.pnlKpiXuat.Controls.Add(this.lblTongSLXuat);
             this.pnlKpiXuat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlKpiXuat.Location = new System.Drawing.Point(715, 0);
+            this.pnlKpiXuat.Location = new System.Drawing.Point(719, 0);
             this.pnlKpiXuat.Margin = new System.Windows.Forms.Padding(3, 0, 6, 0);
             this.pnlKpiXuat.Name = "pnlKpiXuat";
-            this.pnlKpiXuat.Size = new System.Drawing.Size(347, 76);
+            this.pnlKpiXuat.Size = new System.Drawing.Size(349, 64);
             this.pnlKpiXuat.TabIndex = 2;
             // 
             // lblTieuDeTongSLXuat
@@ -424,10 +428,10 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.pnlKpiGiaTri.Controls.Add(this.lblTieuDeTongGiaTriTon);
             this.pnlKpiGiaTri.Controls.Add(this.lblTongGiaTriTon);
             this.pnlKpiGiaTri.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlKpiGiaTri.Location = new System.Drawing.Point(1071, 0);
+            this.pnlKpiGiaTri.Location = new System.Drawing.Point(1077, 0);
             this.pnlKpiGiaTri.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.pnlKpiGiaTri.Name = "pnlKpiGiaTri";
-            this.pnlKpiGiaTri.Size = new System.Drawing.Size(356, 76);
+            this.pnlKpiGiaTri.Size = new System.Drawing.Size(358, 64);
             this.pnlKpiGiaTri.TabIndex = 3;
             // 
             // lblTieuDeTongGiaTriTon
@@ -455,20 +459,23 @@ namespace QLKhoHang.GUI.Forms.Inventory
             // splitBaoCao
             // 
             this.splitBaoCao.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitBaoCao.Location = new System.Drawing.Point(12, 230);
+            this.splitBaoCao.Location = new System.Drawing.Point(12, 168);
             this.splitBaoCao.Name = "splitBaoCao";
             // 
             // splitBaoCao.Panel1
             // 
             this.splitBaoCao.Panel1.Controls.Add(this.dgvBaoCaoTonKho);
-            this.splitBaoCao.Panel1MinSize = 520;
+            this.splitBaoCao.Panel1.Controls.Add(this.pnlTableToolbar);
+            this.splitBaoCao.Panel1MinSize = 380;
             // 
             // splitBaoCao.Panel2
             // 
             this.splitBaoCao.Panel2.Controls.Add(this.chartTopHangHoa);
-            this.splitBaoCao.Panel2MinSize = 350;
-            this.splitBaoCao.Size = new System.Drawing.Size(1443, 579);
-            this.splitBaoCao.SplitterDistance = 914;
+            this.splitBaoCao.Panel2.Controls.Add(this.pnlChartToolbar);
+            this.splitBaoCao.Panel2MinSize = 280;
+            this.splitBaoCao.Size = new System.Drawing.Size(1443, 641);
+            this.splitBaoCao.SplitterDistance = 840;
+            this.splitBaoCao.SplitterWidth = 6;
             this.splitBaoCao.TabIndex = 2;
             // 
             // dgvBaoCaoTonKho
@@ -497,7 +504,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.dgvBaoCaoTonKho.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvBaoCaoTonKho.EnableHeadersVisualStyles = false;
             this.dgvBaoCaoTonKho.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.dgvBaoCaoTonKho.Location = new System.Drawing.Point(0, 0);
+            this.dgvBaoCaoTonKho.Location = new System.Drawing.Point(0, 32);
             this.dgvBaoCaoTonKho.MultiSelect = false;
             this.dgvBaoCaoTonKho.Name = "dgvBaoCaoTonKho";
             this.dgvBaoCaoTonKho.ReadOnly = true;
@@ -506,9 +513,61 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.dgvBaoCaoTonKho.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dgvBaoCaoTonKho.RowTemplate.Height = 34;
             this.dgvBaoCaoTonKho.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvBaoCaoTonKho.Size = new System.Drawing.Size(914, 579);
+            this.dgvBaoCaoTonKho.Size = new System.Drawing.Size(840, 609);
             this.dgvBaoCaoTonKho.TabIndex = 0;
+            this.dgvBaoCaoTonKho.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvBaoCaoTonKho_CellContentClick);
             this.dgvBaoCaoTonKho.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvBaoCaoTonKho_CellFormatting);
+            // 
+            // pnlTableToolbar
+            // 
+            this.pnlTableToolbar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.pnlTableToolbar.Controls.Add(this.btnXemCaHaiBang);
+            this.pnlTableToolbar.Controls.Add(this.btnToanManHinhBang);
+            this.pnlTableToolbar.Controls.Add(this.lblTableTitle);
+            this.pnlTableToolbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlTableToolbar.Location = new System.Drawing.Point(0, 0);
+            this.pnlTableToolbar.Name = "pnlTableToolbar";
+            this.pnlTableToolbar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
+            this.pnlTableToolbar.Size = new System.Drawing.Size(840, 32);
+            this.pnlTableToolbar.TabIndex = 1;
+            // 
+            // btnXemCaHaiBang
+            // 
+            this.btnXemCaHaiBang.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnXemCaHaiBang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXemCaHaiBang.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnXemCaHaiBang.Location = new System.Drawing.Point(634, 3);
+            this.btnXemCaHaiBang.Name = "btnXemCaHaiBang";
+            this.btnXemCaHaiBang.Size = new System.Drawing.Size(80, 26);
+            this.btnXemCaHaiBang.TabIndex = 2;
+            this.btnXemCaHaiBang.Text = "⊞ Cả hai";
+            this.btnXemCaHaiBang.UseVisualStyleBackColor = true;
+            this.btnXemCaHaiBang.Click += new System.EventHandler(this.btnXemCaHai_Click);
+            // 
+            // btnToanManHinhBang
+            // 
+            this.btnToanManHinhBang.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnToanManHinhBang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnToanManHinhBang.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnToanManHinhBang.Location = new System.Drawing.Point(714, 3);
+            this.btnToanManHinhBang.Name = "btnToanManHinhBang";
+            this.btnToanManHinhBang.Size = new System.Drawing.Size(120, 26);
+            this.btnToanManHinhBang.TabIndex = 1;
+            this.btnToanManHinhBang.Text = "⛶ Mở rộng bảng";
+            this.btnToanManHinhBang.UseVisualStyleBackColor = true;
+            this.btnToanManHinhBang.Click += new System.EventHandler(this.btnToanManHinhBang_Click);
+            // 
+            // lblTableTitle
+            // 
+            this.lblTableTitle.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblTableTitle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblTableTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            this.lblTableTitle.Location = new System.Drawing.Point(6, 3);
+            this.lblTableTitle.Name = "lblTableTitle";
+            this.lblTableTitle.Size = new System.Drawing.Size(260, 26);
+            this.lblTableTitle.TabIndex = 0;
+            this.lblTableTitle.Text = "📋 Dữ liệu chi tiết xuất - nhập - tồn";
+            this.lblTableTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // chartTopHangHoa
             // 
@@ -532,7 +591,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             legend1.IsTextAutoFit = false;
             legend1.Name = "chartLegend";
             this.chartTopHangHoa.Legends.Add(legend1);
-            this.chartTopHangHoa.Location = new System.Drawing.Point(0, 0);
+            this.chartTopHangHoa.Location = new System.Drawing.Point(0, 32);
             this.chartTopHangHoa.Name = "chartTopHangHoa";
             series1.ChartArea = "chartAreaTop";
             series1.Color = System.Drawing.Color.FromArgb(((int)(((byte)(13)))), ((int)(((byte)(148)))), ((int)(((byte)(136)))));
@@ -552,13 +611,64 @@ namespace QLKhoHang.GUI.Forms.Inventory
             series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Int32;
             this.chartTopHangHoa.Series.Add(series1);
             this.chartTopHangHoa.Series.Add(series2);
-            this.chartTopHangHoa.Size = new System.Drawing.Size(525, 579);
+            this.chartTopHangHoa.Size = new System.Drawing.Size(597, 609);
             this.chartTopHangHoa.TabIndex = 0;
             this.chartTopHangHoa.Text = "Top sản phẩm nhập xuất";
             title1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             title1.Name = "chartTitle";
             title1.Text = "TOP 10 MẶT HÀNG LUÂN CHUYỂN CAO NHẤT";
             this.chartTopHangHoa.Titles.Add(title1);
+            // 
+            // pnlChartToolbar
+            // 
+            this.pnlChartToolbar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.pnlChartToolbar.Controls.Add(this.btnXemCaHaiChart);
+            this.pnlChartToolbar.Controls.Add(this.btnToanManHinhChart);
+            this.pnlChartToolbar.Controls.Add(this.lblChartHeader);
+            this.pnlChartToolbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlChartToolbar.Location = new System.Drawing.Point(0, 0);
+            this.pnlChartToolbar.Name = "pnlChartToolbar";
+            this.pnlChartToolbar.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
+            this.pnlChartToolbar.Size = new System.Drawing.Size(597, 32);
+            this.pnlChartToolbar.TabIndex = 1;
+            // 
+            // btnXemCaHaiChart
+            // 
+            this.btnXemCaHaiChart.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnXemCaHaiChart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXemCaHaiChart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnXemCaHaiChart.Location = new System.Drawing.Point(391, 3);
+            this.btnXemCaHaiChart.Name = "btnXemCaHaiChart";
+            this.btnXemCaHaiChart.Size = new System.Drawing.Size(80, 26);
+            this.btnXemCaHaiChart.TabIndex = 2;
+            this.btnXemCaHaiChart.Text = "⊞ Cả hai";
+            this.btnXemCaHaiChart.UseVisualStyleBackColor = true;
+            this.btnXemCaHaiChart.Click += new System.EventHandler(this.btnXemCaHai_Click);
+            // 
+            // btnToanManHinhChart
+            // 
+            this.btnToanManHinhChart.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnToanManHinhChart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnToanManHinhChart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnToanManHinhChart.Location = new System.Drawing.Point(471, 3);
+            this.btnToanManHinhChart.Name = "btnToanManHinhChart";
+            this.btnToanManHinhChart.Size = new System.Drawing.Size(120, 26);
+            this.btnToanManHinhChart.TabIndex = 1;
+            this.btnToanManHinhChart.Text = "⛶ Mở rộng sơ đồ";
+            this.btnToanManHinhChart.UseVisualStyleBackColor = true;
+            this.btnToanManHinhChart.Click += new System.EventHandler(this.btnToanManHinhChart_Click);
+            // 
+            // lblChartHeader
+            // 
+            this.lblChartHeader.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblChartHeader.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblChartHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            this.lblChartHeader.Location = new System.Drawing.Point(6, 3);
+            this.lblChartHeader.Name = "lblChartHeader";
+            this.lblChartHeader.Size = new System.Drawing.Size(260, 26);
+            this.lblChartHeader.TabIndex = 0;
+            this.lblChartHeader.Text = "📊 Sơ đồ luân chuyển mặt hàng";
+            this.lblChartHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // frmBaoCaoTonKho
             // 
@@ -576,6 +686,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.Padding = new System.Windows.Forms.Padding(12);
             this.Text = "Báo cáo tồn kho";
             this.Load += new System.EventHandler(this.frmBaoCaoTonKho_Load);
+            this.Resize += new System.EventHandler(this.frmBaoCaoTonKho_Resize);
             this.grpBoLoc.ResumeLayout(false);
             this.tlpBoLoc.ResumeLayout(false);
             this.tlpBoLoc.PerformLayout();
@@ -594,7 +705,9 @@ namespace QLKhoHang.GUI.Forms.Inventory
             ((System.ComponentModel.ISupportInitialize)(this.splitBaoCao)).EndInit();
             this.splitBaoCao.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvBaoCaoTonKho)).EndInit();
+            this.pnlTableToolbar.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartTopHangHoa)).EndInit();
+            this.pnlChartToolbar.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

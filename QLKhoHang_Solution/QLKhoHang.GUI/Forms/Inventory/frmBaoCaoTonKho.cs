@@ -1,18 +1,19 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using ClosedXML.Excel;
-using QLKhoHang.DAL;
+using QLKhoHang.BUS;
+using QLKhoHang.GUI.Helpers;
 
 namespace QLKhoHang.GUI.Forms.Inventory
 {
     public partial class frmBaoCaoTonKho : Form
     {
         private readonly CultureInfo _culture = CultureInfo.GetCultureInfo("vi-VN");
+        private readonly TheKhoBUS _theKhoBUS = new TheKhoBUS();
         private DataTable _baoCaoTable;
 
         public frmBaoCaoTonKho()
@@ -25,20 +26,93 @@ namespace QLKhoHang.GUI.Forms.Inventory
         {
             dtpTuNgay.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             dtpDenNgay.Value = DateTime.Today;
+
+            // Thiết lập chuẩn giao diện
+            this.Font = UIThemeHelper.ControlFont;
+            if (dgvBaoCaoTonKho != null)
+            {
+                UIThemeHelper.ApplyStandardGridStyle(dgvBaoCaoTonKho);
+                dgvBaoCaoTonKho.ReadOnly = true;
+                dgvBaoCaoTonKho.AllowUserToAddRows = false;
+                dgvBaoCaoTonKho.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            }
+
+            DinhDangNutThanhCongCu();
             NapDanhSachLoaiHang();
             CapNhatBieuDo(null);
+            CanBangSplitter();
+        }
+
+        private void DinhDangNutThanhCongCu()
+        {
+            Button[] toolButtons = new Button[] { btnToanManHinhBang, btnXemCaHaiBang, btnToanManHinhChart, btnXemCaHaiChart };
+            foreach (var b in toolButtons)
+            {
+                if (b == null) continue;
+                b.FlatStyle = FlatStyle.Flat;
+                b.FlatAppearance.BorderSize = 1;
+                b.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+                b.BackColor = Color.White;
+                b.ForeColor = Color.FromArgb(51, 65, 85);
+                b.Cursor = Cursors.Hand;
+                b.MouseEnter += (s, ev) => { ((Button)s).BackColor = Color.FromArgb(226, 232, 240); };
+                b.MouseLeave += (s, ev) => { ((Button)s).BackColor = Color.White; };
+            }
+        }
+
+        private void btnToanManHinhBang_Click(object sender, EventArgs e)
+        {
+            splitBaoCao.Panel2Collapsed = true;
+            splitBaoCao.Panel1Collapsed = false;
+        }
+
+        private void btnToanManHinhChart_Click(object sender, EventArgs e)
+        {
+            splitBaoCao.Panel1Collapsed = true;
+            splitBaoCao.Panel2Collapsed = false;
+        }
+
+        private void btnXemCaHai_Click(object sender, EventArgs e)
+        {
+            splitBaoCao.Panel1Collapsed = false;
+            splitBaoCao.Panel2Collapsed = false;
+            CanBangSplitter();
+        }
+
+        private void frmBaoCaoTonKho_Resize(object sender, EventArgs e)
+        {
+            CanBangSplitter();
+        }
+
+        private void CanBangSplitter()
+        {
+            try
+            {
+                if (splitBaoCao != null && splitBaoCao.Width > 0 && !splitBaoCao.Panel1Collapsed && !splitBaoCao.Panel2Collapsed)
+                {
+                    int target = (int)(splitBaoCao.Width * 0.58);
+                    if (target >= splitBaoCao.Panel1MinSize && (splitBaoCao.Width - target) >= splitBaoCao.Panel2MinSize)
+                    {
+                        splitBaoCao.SplitterDistance = target;
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void NapDanhSachLoaiHang()
         {
             try
             {
-                const string sql = @"
-SELECT DISTINCT LoaiHang
-FROM dbo.HangHoa
-WHERE LoaiHang IS NOT NULL
-ORDER BY LoaiHang;";
-                DataTable loaiHang = DatabaseHelper.ExecuteQuery(sql, null);
+                DataTable loaiHang = _theKhoBUS.LayDanhSachLoaiHang();
+                if (loaiHang == null)
+                {
+                    loaiHang = new DataTable();
+                    loaiHang.Columns.Add("LoaiHang", typeof(string));
+                }
+
                 DataRow tatCa = loaiHang.NewRow();
                 tatCa["LoaiHang"] = "Tất cả";
                 loaiHang.Rows.InsertAt(tatCa, 0);
@@ -51,7 +125,7 @@ ORDER BY LoaiHang;";
             catch (Exception ex)
             {
                 btnLocBaoCao.Enabled = false;
-                HienThiLoi("Không thể tải danh mục nhóm hàng. Vui lòng kiểm tra kết nối cơ sở dữ liệu. " + ex.Message);
+                HienThiLoi("Không thể tải danh mục nhóm hàng: " + ex.Message);
             }
         }
 
@@ -78,108 +152,114 @@ ORDER BY LoaiHang;";
                 string loaiHang = cboLoaiHang.SelectedValue == null
                     ? string.Empty
                     : Convert.ToString(cboLoaiHang.SelectedValue, CultureInfo.CurrentCulture);
-                if (string.Equals(loaiHang, "Tất cả", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    loaiHang = string.Empty;
-                }
 
                 string tuKhoa = txtTimKiem.Text.Trim();
-                DataTable baoCao = DatabaseHelper.ExecuteQuery(
-                    @";WITH NhapKy AS
-(
-    SELECT CTPN.MaSP, SUM(CONVERT(BIGINT, CTPN.SoLuongNhap)) AS SLNhapTrongKy
-    FROM dbo.ChiTietPhieuNhap AS CTPN
-    INNER JOIN dbo.PhieuNhap AS PN ON PN.MaPN = CTPN.MaPN
-    WHERE PN.NgayNhap >= @TuNgay
-      AND PN.NgayNhap < DATEADD(DAY, 1, @DenNgay)
-    GROUP BY CTPN.MaSP
-), XuatKy AS
-(
-    SELECT CTPX.MaSP, SUM(CONVERT(BIGINT, CTPX.SoLuongXuat)) AS SLXuatTrongKy
-    FROM dbo.ChiTietPhieuXuat AS CTPX
-    INNER JOIN dbo.PhieuXuat AS PX ON PX.MaPX = CTPX.MaPX
-    WHERE PX.NgayXuat >= @TuNgay
-      AND PX.NgayXuat < DATEADD(DAY, 1, @DenNgay)
-    GROUP BY CTPX.MaSP
-), NhapSauKy AS
-(
-    SELECT CTPN.MaSP, SUM(CONVERT(BIGINT, CTPN.SoLuongNhap)) AS TongNhapSauKy
-    FROM dbo.ChiTietPhieuNhap AS CTPN
-    INNER JOIN dbo.PhieuNhap AS PN ON PN.MaPN = CTPN.MaPN
-    WHERE PN.NgayNhap >= DATEADD(DAY, 1, @DenNgay)
-    GROUP BY CTPN.MaSP
-), XuatSauKy AS
-(
-    SELECT CTPX.MaSP, SUM(CONVERT(BIGINT, CTPX.SoLuongXuat)) AS TongXuatSauKy
-    FROM dbo.ChiTietPhieuXuat AS CTPX
-    INNER JOIN dbo.PhieuXuat AS PX ON PX.MaPX = CTPX.MaPX
-    WHERE PX.NgayXuat >= DATEADD(DAY, 1, @DenNgay)
-    GROUP BY CTPX.MaSP
-), TonTheoKy AS
-(
-    SELECT HH.MaSP,
-           HH.TenSP,
-           HH.LoaiHang,
-           HH.DonViTinh,
-           HH.GiaNhapGanNhat,
-           HH.TonToiThieu,
-           HH.TonToiDa,
-           COALESCE(NK.SLNhapTrongKy, CONVERT(BIGINT, 0)) AS SLNhap,
-           COALESCE(XK.SLXuatTrongKy, CONVERT(BIGINT, 0)) AS SLXuat,
-           CONVERT(BIGINT, HH.SoLuongTon)
-             - COALESCE(NSK.TongNhapSauKy, CONVERT(BIGINT, 0))
-             + COALESCE(XSK.TongXuatSauKy, CONVERT(BIGINT, 0)) AS TonCuoi
-    FROM dbo.HangHoa AS HH
-    LEFT JOIN NhapKy AS NK ON NK.MaSP = HH.MaSP
-    LEFT JOIN XuatKy AS XK ON XK.MaSP = HH.MaSP
-    LEFT JOIN NhapSauKy AS NSK ON NSK.MaSP = HH.MaSP
-    LEFT JOIN XuatSauKy AS XSK ON XSK.MaSP = HH.MaSP
-)
-SELECT ROW_NUMBER() OVER (ORDER BY MaSP ASC) AS STT,
-       MaSP,
-       TenSP,
-       LoaiHang,
-       DonViTinh,
-       TonCuoi - SLNhap + SLXuat AS TonDau,
-       SLNhap,
-       SLXuat,
-       TonCuoi,
-       CONVERT(DECIMAL(28, 2), TonCuoi * GiaNhapGanNhat) AS GiaTriTon,
-       CASE
-           WHEN TonCuoi <= 0 THEN N'Hết hàng'
-           WHEN TonCuoi <= TonToiThieu THEN N'Chạm ngưỡng tối thiểu'
-           WHEN TonCuoi > TonToiDa THEN N'Vượt tồn tối đa'
-           ELSE N'Bình thường'
-       END AS TrangThai,
-       TonToiThieu,
-       TonToiDa,
-       SLNhap + SLXuat AS TongLuanChuyen
-FROM TonTheoKy
-WHERE (@LoaiHang = N'' OR LoaiHang = @LoaiHang)
-  AND (@TuKhoa = N'' OR MaSP LIKE N'%' + @TuKhoa + N'%' OR TenSP LIKE N'%' + @TuKhoa + N'%')
-ORDER BY MaSP ASC;",
-                    new[]
-                    {
-                        new SqlParameter("@TuNgay", SqlDbType.DateTime) { Value = tuNgay },
-                        new SqlParameter("@DenNgay", SqlDbType.DateTime) { Value = denNgay },
-                        new SqlParameter("@LoaiHang", SqlDbType.NVarChar, 50) { Value = loaiHang },
-                        new SqlParameter("@TuKhoa", SqlDbType.NVarChar, 200) { Value = tuKhoa }
-                    });
+
+                DataTable baoCao = _theKhoBUS.LayBaoCaoTonKho(tuNgay, denNgay, loaiHang, tuKhoa);
 
                 _baoCaoTable = baoCao;
                 dgvBaoCaoTonKho.DataSource = baoCao;
+                DinhDangCotBangBaoCao();
                 CapNhatKPI(baoCao);
                 CapNhatBieuDo(baoCao);
                 btnXuatExcel.Enabled = true;
+                CanBangSplitter();
             }
             catch (Exception ex)
             {
-                HienThiLoi("Không thể tổng hợp báo cáo tồn kho. Vui lòng kiểm tra dữ liệu và kết nối SQL Server. " + ex.Message);
+                HienThiLoi("Không thể tổng hợp báo cáo tồn kho: " + ex.Message);
             }
             finally
             {
                 UseWaitCursor = false;
                 btnLocBaoCao.Enabled = true;
+            }
+        }
+
+        private void DinhDangCotBangBaoCao()
+        {
+            if (dgvBaoCaoTonKho.Columns.Count == 0) return;
+
+            if (dgvBaoCaoTonKho.Columns.Contains("STT"))
+            {
+                dgvBaoCaoTonKho.Columns["STT"].HeaderText = "STT";
+                dgvBaoCaoTonKho.Columns["STT"].Width = 45;
+                dgvBaoCaoTonKho.Columns["STT"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("MaSP"))
+            {
+                dgvBaoCaoTonKho.Columns["MaSP"].HeaderText = "Mã SP";
+                dgvBaoCaoTonKho.Columns["MaSP"].Width = 85;
+                dgvBaoCaoTonKho.Columns["MaSP"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("TenSP"))
+            {
+                dgvBaoCaoTonKho.Columns["TenSP"].HeaderText = "Tên sản phẩm";
+                dgvBaoCaoTonKho.Columns["TenSP"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvBaoCaoTonKho.Columns["TenSP"].MinimumWidth = 140;
+                dgvBaoCaoTonKho.Columns["TenSP"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("LoaiHang"))
+            {
+                dgvBaoCaoTonKho.Columns["LoaiHang"].HeaderText = "Loại hàng";
+                dgvBaoCaoTonKho.Columns["LoaiHang"].Width = 100;
+                dgvBaoCaoTonKho.Columns["LoaiHang"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("DonViTinh"))
+            {
+                dgvBaoCaoTonKho.Columns["DonViTinh"].HeaderText = "ĐVT";
+                dgvBaoCaoTonKho.Columns["DonViTinh"].Width = 55;
+                dgvBaoCaoTonKho.Columns["DonViTinh"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("TonDau"))
+            {
+                dgvBaoCaoTonKho.Columns["TonDau"].HeaderText = "Tồn đầu";
+                dgvBaoCaoTonKho.Columns["TonDau"].Width = 75;
+                dgvBaoCaoTonKho.Columns["TonDau"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvBaoCaoTonKho.Columns["TonDau"].DefaultCellStyle.Format = "N0";
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("SLNhap"))
+            {
+                dgvBaoCaoTonKho.Columns["SLNhap"].HeaderText = "Nhập";
+                dgvBaoCaoTonKho.Columns["SLNhap"].Width = 70;
+                dgvBaoCaoTonKho.Columns["SLNhap"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvBaoCaoTonKho.Columns["SLNhap"].DefaultCellStyle.Format = "N0";
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("SLXuat"))
+            {
+                dgvBaoCaoTonKho.Columns["SLXuat"].HeaderText = "Xuất";
+                dgvBaoCaoTonKho.Columns["SLXuat"].Width = 70;
+                dgvBaoCaoTonKho.Columns["SLXuat"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvBaoCaoTonKho.Columns["SLXuat"].DefaultCellStyle.Format = "N0";
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("TonCuoi"))
+            {
+                dgvBaoCaoTonKho.Columns["TonCuoi"].HeaderText = "Tồn cuối";
+                dgvBaoCaoTonKho.Columns["TonCuoi"].Width = 75;
+                dgvBaoCaoTonKho.Columns["TonCuoi"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvBaoCaoTonKho.Columns["TonCuoi"].DefaultCellStyle.Format = "N0";
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("GiaTriTon"))
+            {
+                dgvBaoCaoTonKho.Columns["GiaTriTon"].HeaderText = "Giá trị tồn (VNĐ)";
+                dgvBaoCaoTonKho.Columns["GiaTriTon"].Width = 110;
+                dgvBaoCaoTonKho.Columns["GiaTriTon"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgvBaoCaoTonKho.Columns["GiaTriTon"].DefaultCellStyle.Format = "N0";
+            }
+            if (dgvBaoCaoTonKho.Columns.Contains("TrangThai"))
+            {
+                dgvBaoCaoTonKho.Columns["TrangThai"].HeaderText = "Trạng thái";
+                dgvBaoCaoTonKho.Columns["TrangThai"].Width = 120;
+                dgvBaoCaoTonKho.Columns["TrangThai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            string[] cotCanAn = new string[] { "TonToiThieu", "TonToiDa", "TongLuanChuyen" };
+            foreach (var colName in cotCanAn)
+            {
+                if (dgvBaoCaoTonKho.Columns.Contains(colName))
+                {
+                    dgvBaoCaoTonKho.Columns[colName].Visible = false;
+                }
             }
         }
 
@@ -211,48 +291,106 @@ ORDER BY MaSP ASC;",
 
         private void CapNhatBieuDo(DataTable baoCao)
         {
-            seriesSoLuongNhap.Points.Clear();
-            seriesSoLuongXuat.Points.Clear();
-            if (baoCao == null || baoCao.Rows.Count == 0)
+            if (seriesSoLuongNhap == null && chartTopHangHoa != null && chartTopHangHoa.Series.Count > 0)
+            {
+                seriesSoLuongNhap = chartTopHangHoa.Series[0];
+            }
+            if (seriesSoLuongXuat == null && chartTopHangHoa != null && chartTopHangHoa.Series.Count > 1)
+            {
+                seriesSoLuongXuat = chartTopHangHoa.Series[1];
+            }
+
+            if (seriesSoLuongNhap != null)
+            {
+                seriesSoLuongNhap.Points.Clear();
+            }
+            if (seriesSoLuongXuat != null)
+            {
+                seriesSoLuongXuat.Points.Clear();
+            }
+
+            if (baoCao == null || baoCao.Rows.Count == 0 || seriesSoLuongNhap == null || seriesSoLuongXuat == null)
             {
                 return;
             }
 
             DataView topHangHoa = baoCao.DefaultView;
             topHangHoa.Sort = "TongLuanChuyen DESC, MaSP ASC";
-            int soMatHang = Math.Min(10, topHangHoa.Count);
+            // Lấy tối đa 8 mặt hàng luân chuyển cao nhất để biểu đồ thoáng đãng, dễ nhìn
+            int soMatHang = Math.Min(8, topHangHoa.Count);
             for (int index = 0; index < soMatHang; index++)
             {
                 DataRowView row = topHangHoa[index];
-                string tenHienThi = Convert.ToString(row["TenSP"], CultureInfo.CurrentCulture);
+                string maSP = Convert.ToString(row["MaSP"], CultureInfo.CurrentCulture);
+                string tenSP = Convert.ToString(row["TenSP"], CultureInfo.CurrentCulture);
+                string tenNgan = tenSP.Length > 12 ? (tenSP.Substring(0, 10) + "...") : tenSP;
+                string labelTrucX = $"{maSP}\n{tenNgan}";
+
                 double slNhap = Convert.ToDouble(row["SLNhap"], CultureInfo.InvariantCulture);
                 double slXuat = Convert.ToDouble(row["SLXuat"], CultureInfo.InvariantCulture);
-                seriesSoLuongNhap.Points.AddXY(tenHienThi, slNhap);
-                seriesSoLuongXuat.Points.AddXY(tenHienThi, slXuat);
+
+                int idxNhap = seriesSoLuongNhap.Points.AddXY(labelTrucX, slNhap);
+                seriesSoLuongNhap.Points[idxNhap].ToolTip = $"{tenSP} ({maSP})\nSố lượng nhập: {slNhap:N0}";
+
+                int idxXuat = seriesSoLuongXuat.Points.AddXY(labelTrucX, slXuat);
+                seriesSoLuongXuat.Points[idxXuat].ToolTip = $"{tenSP} ({maSP})\nSố lượng xuất: {slXuat:N0}";
             }
         }
 
         private void dgvBaoCaoTonKho_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0)
-            {
-                return;
-            }
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            DataGridViewColumn col = dgvBaoCaoTonKho.Columns[e.ColumnIndex];
+            if (col == null) return;
 
             DataRowView row = dgvBaoCaoTonKho.Rows[e.RowIndex].DataBoundItem as DataRowView;
-            if (row == null)
-            {
-                return;
-            }
+            if (row == null) return;
 
-            decimal tonCuoi = Convert.ToDecimal(row["TonCuoi"], CultureInfo.InvariantCulture);
-            decimal tonToiThieu = Convert.ToDecimal(row["TonToiThieu"], CultureInfo.InvariantCulture);
-            if (tonCuoi <= tonToiThieu)
+            if (col.Name == "TrangThai")
             {
-                e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
-                e.CellStyle.BackColor = Color.FromArgb(254, 249, 195);
-                e.CellStyle.SelectionBackColor = Color.FromArgb(253, 230, 138);
-                e.CellStyle.SelectionForeColor = Color.FromArgb(153, 27, 27);
+                string trangThai = row["TrangThai"]?.ToString() ?? string.Empty;
+                e.CellStyle.Font = new Font(dgvBaoCaoTonKho.Font, FontStyle.Bold);
+
+                if (trangThai.IndexOf("Hết", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(254, 226, 226);
+                    e.CellStyle.ForeColor = Color.FromArgb(185, 28, 28);
+                }
+                else if (trangThai.IndexOf("tối thiểu", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(254, 243, 199);
+                    e.CellStyle.ForeColor = Color.FromArgb(180, 83, 9);
+                }
+                else if (trangThai.IndexOf("tối đa", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(219, 234, 254);
+                    e.CellStyle.ForeColor = Color.FromArgb(29, 78, 216);
+                }
+                else
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(220, 252, 231);
+                    e.CellStyle.ForeColor = Color.FromArgb(21, 128, 61);
+                }
+            }
+            else if (col.Name == "TonCuoi")
+            {
+                decimal tonCuoi = 0;
+                decimal tonToiThieu = 0;
+                if (decimal.TryParse(row["TonCuoi"]?.ToString(), out tonCuoi) &&
+                    decimal.TryParse(row["TonToiThieu"]?.ToString(), out tonToiThieu))
+                {
+                    if (tonCuoi <= 0)
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
+                        e.CellStyle.Font = new Font(dgvBaoCaoTonKho.Font, FontStyle.Bold);
+                    }
+                    else if (tonCuoi <= tonToiThieu)
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6);
+                        e.CellStyle.Font = new Font(dgvBaoCaoTonKho.Font, FontStyle.Bold);
+                    }
+                }
             }
         }
 
@@ -277,6 +415,7 @@ ORDER BY MaSP ASC;",
                     return;
                 }
 
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
                 try
                 {
                     XuatBaoCaoExcel(dialog.FileName);
@@ -284,7 +423,11 @@ ORDER BY MaSP ASC;",
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Không thể xuất file Excel. Vui lòng kiểm tra quyền ghi và thử lại. " + ex.Message, "Xuất Excel thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Không thể xuất file Excel: " + ex.Message, "Xuất Excel thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    System.Windows.Forms.Cursor.Current = Cursors.Default;
                 }
             }
         }
@@ -302,79 +445,29 @@ ORDER BY MaSP ASC;",
 
                 const int headerRow = 4;
                 const int firstDataRow = headerRow + 1;
-                for (int columnIndex = 0; columnIndex < dgvBaoCaoTonKho.Columns.Count; columnIndex++)
+
+                for (int colIndex = 0; colIndex < dgvBaoCaoTonKho.Columns.Count; colIndex++)
                 {
-                    IXLCell headerCell = worksheet.Cell(headerRow, columnIndex + 1);
-                    headerCell.Value = dgvBaoCaoTonKho.Columns[columnIndex].HeaderText;
-                    headerCell.Style.Font.Bold = true;
-                    headerCell.Style.Font.FontColor = XLColor.White;
-                    headerCell.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-                    headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(headerRow, colIndex + 1).Value = dgvBaoCaoTonKho.Columns[colIndex].HeaderText;
                 }
 
                 int excelRow = firstDataRow;
                 foreach (DataGridViewRow gridRow in dgvBaoCaoTonKho.Rows)
                 {
-                    if (gridRow.IsNewRow)
+                    if (gridRow.IsNewRow) continue;
+                    for (int colIndex = 0; colIndex < dgvBaoCaoTonKho.Columns.Count; colIndex++)
                     {
-                        continue;
+                        GanGiaTriOExcel(worksheet.Cell(excelRow, colIndex + 1), gridRow.Cells[colIndex].Value);
                     }
-
-                    for (int columnIndex = 0; columnIndex < dgvBaoCaoTonKho.Columns.Count; columnIndex++)
-                    {
-                        GhiGiaTriExcel(worksheet.Cell(excelRow, columnIndex + 1), gridRow.Cells[columnIndex].Value);
-                    }
-
-                    if ((excelRow - firstDataRow) % 2 == 1)
-                    {
-                        worksheet.Range(excelRow, 1, excelRow, dgvBaoCaoTonKho.Columns.Count).Style.Fill.BackgroundColor = XLColor.FromHtml("#F1F5F9");
-                    }
-
                     excelRow++;
                 }
 
-                if (dgvBaoCaoTonKho.Rows.Count == 0)
-                {
-                    worksheet.Cell(firstDataRow, 3).Value = "Không có mặt hàng phù hợp với bộ lọc.";
-                    excelRow++;
-                }
-
-                int totalRow = excelRow;
-                worksheet.Range(totalRow, 1, totalRow, 5).Merge();
-                worksheet.Cell(totalRow, 1).Value = "TỔNG CỘNG";
-                worksheet.Cell(totalRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                worksheet.Cell(totalRow, 1).Style.Font.Bold = true;
-                for (int column = 6; column <= 10; column++)
-                {
-                    string columnLetter = ((char)('A' + column - 1)).ToString();
-                    worksheet.Cell(totalRow, column).FormulaA1 = "=SUM(" + columnLetter + firstDataRow + ":" + columnLetter + (excelRow - 1) + ")";
-                    worksheet.Cell(totalRow, column).Style.Font.Bold = true;
-                }
-
-                IXLRange reportRange = worksheet.Range(headerRow, 1, totalRow, dgvBaoCaoTonKho.Columns.Count);
-                reportRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                reportRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-                reportRange.Style.Border.OutsideBorderColor = XLColor.FromHtml("#CBD5E1");
-                reportRange.Style.Border.InsideBorderColor = XLColor.FromHtml("#E2E8F0");
-                reportRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                worksheet.Range(totalRow, 1, totalRow, dgvBaoCaoTonKho.Columns.Count).Style.Fill.BackgroundColor = XLColor.FromHtml("#E2E8F0");
-                worksheet.Range(firstDataRow, 6, totalRow, 9).Style.NumberFormat.Format = "#,##0";
-                worksheet.Range(firstDataRow, 10, totalRow, 10).Style.NumberFormat.Format = "#,##0 \"VNĐ\"";
-                worksheet.Range(firstDataRow, 6, totalRow, 10).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                worksheet.Range(1, 1, totalRow, dgvBaoCaoTonKho.Columns.Count).Style.Font.FontName = "Segoe UI";
-                worksheet.Range(1, 1, 1, dgvBaoCaoTonKho.Columns.Count).Style.Font.FontSize = 16;
-                worksheet.Range(1, 1, 1, dgvBaoCaoTonKho.Columns.Count).Style.Font.Bold = true;
-                worksheet.Range(1, 1, 1, dgvBaoCaoTonKho.Columns.Count).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Column(10).Style.NumberFormat.Format = "#,##0 \"VNĐ\"";
-                worksheet.Columns(1, dgvBaoCaoTonKho.Columns.Count).AdjustToContents();
-                worksheet.Column(3).Width = Math.Max(worksheet.Column(3).Width, 28);
-                worksheet.Column(11).Width = Math.Max(worksheet.Column(11).Width, 25);
-                worksheet.SheetView.FreezeRows(headerRow);
+                worksheet.Columns().AdjustToContents();
                 workbook.SaveAs(filePath);
             }
         }
 
-        private static void GhiGiaTriExcel(IXLCell cell, object value)
+        private void GanGiaTriOExcel(IXLCell cell, object value)
         {
             if (value == null || value == DBNull.Value)
             {
@@ -400,6 +493,11 @@ ORDER BY MaSP ASC;",
         private void HienThiLoi(string message)
         {
             MessageBox.Show(message, "Báo cáo tồn kho", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void dgvBaoCaoTonKho_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

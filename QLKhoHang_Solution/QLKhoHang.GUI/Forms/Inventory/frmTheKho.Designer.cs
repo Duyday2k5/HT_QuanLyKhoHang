@@ -131,13 +131,13 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.tlpBoLoc.Controls.Add(this.btnXemTheKho, 3, 1);
             this.tlpBoLoc.Controls.Add(this.btnXuatExcel, 4, 1);
             this.tlpBoLoc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpBoLoc.Location = new System.Drawing.Point(12, 56);
+            this.tlpBoLoc.Location = new System.Drawing.Point(12, 47);
             this.tlpBoLoc.Name = "tlpBoLoc";
             this.tlpBoLoc.RowCount = 3;
             this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23F));
             this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
             this.tlpBoLoc.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpBoLoc.Size = new System.Drawing.Size(1419, 68);
+            this.tlpBoLoc.Size = new System.Drawing.Size(1419, 77);
             this.tlpBoLoc.TabIndex = 0;
             // 
             // lblHangHoaTitle
@@ -184,7 +184,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.lblGhiChu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblGhiChu.Location = new System.Drawing.Point(3, 61);
             this.lblGhiChu.Name = "lblGhiChu";
-            this.lblGhiChu.Size = new System.Drawing.Size(476, 7);
+            this.lblGhiChu.Size = new System.Drawing.Size(476, 16);
             this.lblGhiChu.TabIndex = 3;
             this.lblGhiChu.Text = "Số dư tồn tính lũy kế theo ngày chứng từ.";
             this.lblGhiChu.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -446,7 +446,7 @@ namespace QLKhoHang.GUI.Forms.Inventory
             this.dgvTheKho.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvTheKho.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;

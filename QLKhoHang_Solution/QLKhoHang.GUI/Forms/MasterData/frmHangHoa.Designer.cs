@@ -1,4 +1,4 @@
-﻿namespace QLKhoHang.GUI
+namespace QLKhoHang.GUI.Forms.MasterData
 {
     partial class frmHangHoa
     {
@@ -90,6 +90,7 @@
             this.dgvHangHoa.Size = new System.Drawing.Size(988, 404);
             this.dgvHangHoa.TabIndex = 3;
             this.dgvHangHoa.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvHangHoa_CellClick);
+            this.dgvHangHoa.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvHangHoa_CellContentClick);
             this.dgvHangHoa.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvHangHoa_CellFormatting);
             // 
             // pnlCongCu
@@ -211,11 +212,19 @@
             this.numTonMax.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.numTonMax.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.numTonMax.Location = new System.Drawing.Point(865, 105);
-            this.numTonMax.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            this.numTonMax.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
             this.numTonMax.Name = "numTonMax";
             this.numTonMax.Size = new System.Drawing.Size(105, 30);
             this.numTonMax.TabIndex = 13;
-            this.numTonMax.Value = new decimal(new int[] { 500, 0, 0, 0 });
+            this.numTonMax.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
             // 
             // lblTonMax
             // 
@@ -224,7 +233,7 @@
             this.lblTonMax.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblTonMax.Location = new System.Drawing.Point(768, 108);
             this.lblTonMax.Name = "lblTonMax";
-            this.lblTonMax.Size = new System.Drawing.Size(91, 23);
+            this.lblTonMax.Size = new System.Drawing.Size(92, 23);
             this.lblTonMax.TabIndex = 12;
             this.lblTonMax.Text = "Tồn tối đa:";
             // 
@@ -233,11 +242,19 @@
             this.numTonMin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.numTonMin.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.numTonMin.Location = new System.Drawing.Point(636, 105);
-            this.numTonMin.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+            this.numTonMin.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
             this.numTonMin.Name = "numTonMin";
             this.numTonMin.Size = new System.Drawing.Size(110, 30);
             this.numTonMin.TabIndex = 11;
-            this.numTonMin.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            this.numTonMin.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // lblTonMin
             // 
@@ -246,7 +263,7 @@
             this.lblTonMin.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblTonMin.Location = new System.Drawing.Point(510, 108);
             this.lblTonMin.Name = "lblTonMin";
-            this.lblTonMin.Size = new System.Drawing.Size(117, 23);
+            this.lblTonMin.Size = new System.Drawing.Size(112, 23);
             this.lblTonMin.TabIndex = 10;
             this.lblTonMin.Text = "Tồn tối thiểu:";
             // 
@@ -309,7 +326,7 @@
             this.lblLoaiHang.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblLoaiHang.Location = new System.Drawing.Point(510, 34);
             this.lblLoaiHang.Name = "lblLoaiHang";
-            this.lblLoaiHang.Size = new System.Drawing.Size(90, 23);
+            this.lblLoaiHang.Size = new System.Drawing.Size(89, 23);
             this.lblLoaiHang.TabIndex = 4;
             this.lblLoaiHang.Text = "Loại hàng:";
             // 
@@ -327,7 +344,7 @@
             this.lblTenSP.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblTenSP.Location = new System.Drawing.Point(18, 71);
             this.lblTenSP.Name = "lblTenSP";
-            this.lblTenSP.Size = new System.Drawing.Size(65, 23);
+            this.lblTenSP.Size = new System.Drawing.Size(64, 23);
             this.lblTenSP.TabIndex = 2;
             this.lblTenSP.Text = "Tên SP:";
             // 
@@ -345,7 +362,7 @@
             this.lblMaSP.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblMaSP.Location = new System.Drawing.Point(18, 34);
             this.lblMaSP.Name = "lblMaSP";
-            this.lblMaSP.Size = new System.Drawing.Size(63, 23);
+            this.lblMaSP.Size = new System.Drawing.Size(62, 23);
             this.lblMaSP.TabIndex = 0;
             this.lblMaSP.Text = "Mã SP:";
             // 
@@ -367,7 +384,7 @@
             this.lblChuThichCanhBao.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(28)))), ((int)(((byte)(28)))));
             this.lblChuThichCanhBao.Location = new System.Drawing.Point(620, 10);
             this.lblChuThichCanhBao.Name = "lblChuThichCanhBao";
-            this.lblChuThichCanhBao.Size = new System.Drawing.Size(350, 20);
+            this.lblChuThichCanhBao.Size = new System.Drawing.Size(355, 20);
             this.lblChuThichCanhBao.TabIndex = 1;
             this.lblChuThichCanhBao.Text = "● Màu đỏ: Hàng tồn chạm hoặc dưới ngưỡng tối thiểu";
             // 
@@ -378,7 +395,7 @@
             this.lblTieuDe.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblTieuDe.Location = new System.Drawing.Point(0, 0);
             this.lblTieuDe.Name = "lblTieuDe";
-            this.lblTieuDe.Size = new System.Drawing.Size(420, 35);
+            this.lblTieuDe.Size = new System.Drawing.Size(416, 35);
             this.lblTieuDe.TabIndex = 0;
             this.lblTieuDe.Text = "QUẢN LÝ DANH MỤC HÀNG HÓA";
             // 

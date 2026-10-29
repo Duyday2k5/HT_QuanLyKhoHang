@@ -21,6 +21,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.lblHeroDescription = new System.Windows.Forms.Label();
             this.lblHeroTitle = new System.Windows.Forms.Label();
             this.lblBrand = new System.Windows.Forms.Label();
+            this.picLogo = new System.Windows.Forms.PictureBox();
             this.panelLogo = new System.Windows.Forms.Panel();
             this.lblLogoGlyph = new System.Windows.Forms.Label();
             this.lblHeroCaption = new System.Windows.Forms.Label();
@@ -29,6 +30,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.btnThoat = new System.Windows.Forms.Button();
             this.btnDangNhap = new System.Windows.Forms.Button();
             this.chkGhiNhoTaiKhoan = new System.Windows.Forms.CheckBox();
+            this.chkHienMatKhau = new System.Windows.Forms.CheckBox();
             this.cboVaiTro = new System.Windows.Forms.ComboBox();
             this.lblVaiTro = new System.Windows.Forms.Label();
             this.txtMatKhau = new System.Windows.Forms.TextBox();
@@ -39,6 +41,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.lblTieuDe = new System.Windows.Forms.Label();
             this.lblEyebrow = new System.Windows.Forms.Label();
             this.panelHero.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
             this.panelLogo.SuspendLayout();
             this.panelContent.SuspendLayout();
             this.SuspendLayout();
@@ -49,6 +52,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.panelHero.Controls.Add(this.lblHeroDescription);
             this.panelHero.Controls.Add(this.lblHeroTitle);
             this.panelHero.Controls.Add(this.lblBrand);
+            this.panelHero.Controls.Add(this.picLogo);
             this.panelHero.Controls.Add(this.panelLogo);
             this.panelHero.Controls.Add(this.lblHeroCaption);
             this.panelHero.Dock = System.Windows.Forms.DockStyle.Left;
@@ -56,6 +60,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.panelHero.Name = "panelHero";
             this.panelHero.Size = new System.Drawing.Size(300, 660);
             this.panelHero.TabIndex = 0;
+            this.panelHero.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHero_Paint);
             // 
             // lblHeroDescription
             // 
@@ -85,17 +90,29 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.lblBrand.Name = "lblBrand";
             this.lblBrand.Size = new System.Drawing.Size(184, 52);
             this.lblBrand.TabIndex = 2;
-            this.lblBrand.Text = "QL KHO HÀNG\r\nWAREHOUSE SYSTEM";
+            this.lblBrand.Text = "HỆ THỐNG\r\nQUẢN LÝ KHO HÀNG";
             this.lblBrand.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // picLogo
+            // 
+            this.picLogo.BackColor = System.Drawing.Color.Transparent;
+            this.picLogo.Image = global::QLKhoHang.GUI.Properties.Resources.logo_khohang;
+            this.picLogo.Location = new System.Drawing.Point(32, 40);
+            this.picLogo.Name = "picLogo";
+            this.picLogo.Size = new System.Drawing.Size(48, 48);
+            this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picLogo.TabIndex = 6;
+            this.picLogo.TabStop = false;
             // 
             // panelLogo
             // 
-            this.panelLogo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(244)))), ((int)(((byte)(239)))));
+            this.panelLogo.BackColor = System.Drawing.Color.Transparent;
             this.panelLogo.Controls.Add(this.lblLogoGlyph);
             this.panelLogo.Location = new System.Drawing.Point(32, 40);
             this.panelLogo.Name = "panelLogo";
             this.panelLogo.Size = new System.Drawing.Size(48, 48);
             this.panelLogo.TabIndex = 1;
+            this.panelLogo.Visible = false;
             // 
             // lblLogoGlyph
             // 
@@ -127,6 +144,7 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.panelContent.Controls.Add(this.btnThoat);
             this.panelContent.Controls.Add(this.btnDangNhap);
             this.panelContent.Controls.Add(this.chkGhiNhoTaiKhoan);
+            this.panelContent.Controls.Add(this.chkHienMatKhau);
             this.panelContent.Controls.Add(this.cboVaiTro);
             this.panelContent.Controls.Add(this.lblVaiTro);
             this.panelContent.Controls.Add(this.txtMatKhau);
@@ -201,6 +219,19 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.chkGhiNhoTaiKhoan.TabIndex = 3;
             this.chkGhiNhoTaiKhoan.Text = "Ghi nhớ tài khoản trên máy này";
             this.chkGhiNhoTaiKhoan.UseVisualStyleBackColor = true;
+            // 
+            // chkHienMatKhau
+            // 
+            this.chkHienMatKhau.AutoSize = true;
+            this.chkHienMatKhau.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkHienMatKhau.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(101)))), ((int)(((byte)(118)))));
+            this.chkHienMatKhau.Location = new System.Drawing.Point(52, 345);
+            this.chkHienMatKhau.Name = "chkHienMatKhau";
+            this.chkHienMatKhau.Size = new System.Drawing.Size(126, 24);
+            this.chkHienMatKhau.TabIndex = 2;
+            this.chkHienMatKhau.Text = "Hiện mật khẩu";
+            this.chkHienMatKhau.UseVisualStyleBackColor = true;
+            this.chkHienMatKhau.CheckedChanged += new System.EventHandler(this.chkHienMatKhau_CheckedChanged);
             // 
             // cboVaiTro
             // 
@@ -292,13 +323,13 @@ namespace QLKhoHang.GUI.Forms.Auth
             // lblTieuDe
             // 
             this.lblTieuDe.AutoSize = true;
-            this.lblTieuDe.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
+            this.lblTieuDe.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
             this.lblTieuDe.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(21)))), ((int)(((byte)(43)))), ((int)(((byte)(59)))));
             this.lblTieuDe.Location = new System.Drawing.Point(47, 88);
             this.lblTieuDe.Name = "lblTieuDe";
-            this.lblTieuDe.Size = new System.Drawing.Size(230, 54);
+            this.lblTieuDe.Size = new System.Drawing.Size(480, 41);
             this.lblTieuDe.TabIndex = 1;
-            this.lblTieuDe.Text = "Đăng nhập";
+            this.lblTieuDe.Text = "HỆ THỐNG QUẢN LÝ KHO HÀNG";
             // 
             // lblEyebrow
             // 
@@ -328,8 +359,9 @@ namespace QLKhoHang.GUI.Forms.Auth
             this.MinimumSize = new System.Drawing.Size(850, 620);
             this.Name = "frmDangNhap";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Đăng nhập - QLKhoHang";
+            this.Text = "Hệ thống Quản lý Kho hàng";
             this.panelHero.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
             this.panelLogo.ResumeLayout(false);
             this.panelContent.ResumeLayout(false);
             this.panelContent.PerformLayout();
@@ -340,6 +372,7 @@ namespace QLKhoHang.GUI.Forms.Auth
         #endregion
 
         private System.Windows.Forms.Panel panelHero;
+        private System.Windows.Forms.PictureBox picLogo;
         private System.Windows.Forms.Label lblHeroDescription;
         private System.Windows.Forms.Label lblHeroTitle;
         private System.Windows.Forms.Label lblBrand;
@@ -351,6 +384,7 @@ namespace QLKhoHang.GUI.Forms.Auth
         private System.Windows.Forms.Button btnThoat;
         private System.Windows.Forms.Button btnDangNhap;
         private System.Windows.Forms.CheckBox chkGhiNhoTaiKhoan;
+        private System.Windows.Forms.CheckBox chkHienMatKhau;
         private System.Windows.Forms.ComboBox cboVaiTro;
         private System.Windows.Forms.Label lblVaiTro;
         private System.Windows.Forms.TextBox txtMatKhau;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,8 +8,9 @@ using System.Windows.Forms;
 using QLKhoHang.BUS;
 using QLKhoHang.DTO;
 using QLKhoHang.GUI.Common;
+using QLKhoHang.GUI.Helpers;
 
-namespace QLKhoHang.GUI
+namespace QLKhoHang.GUI.Forms.Transactions
 {
     public partial class frmNhapKho : Form
     {
@@ -37,6 +38,13 @@ namespace QLKhoHang.GUI
                 cboHangHoa.SelectedIndexChanged += CboHangHoa_SelectedIndexChanged;
                 numSoLuong.ValueChanged += TinhToanThanhTienTamTinh;
                 numDonGia.ValueChanged += TinhToanThanhTienTamTinh;
+                numSoLuong.KeyPress += (s, ev) =>
+                {
+                    if (!char.IsControl(ev.KeyChar) && !char.IsDigit(ev.KeyChar))
+                    {
+                        ev.Handled = true;
+                    }
+                };
                 btnThemDong.Click += BtnThemDong_Click;
                 btnLuuPhieu.Click += BtnLuuPhieu_Click;
                 btnHuy.Click += BtnHuy_Click;
@@ -68,8 +76,14 @@ namespace QLKhoHang.GUI
 
         private void KhoiTaoCauTrucBangChiTiet()
         {
+            UIThemeHelper.ApplyStandardGridStyle(dgvChiTiet);
+            this.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             dgvChiTiet.AutoGenerateColumns = false;
             dgvChiTiet.Columns.Clear();
+            dgvChiTiet.ReadOnly = true;
+            dgvChiTiet.AllowUserToAddRows = false;
+            dgvChiTiet.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvChiTiet.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             // Cột 1: STT
             DataGridViewTextBoxColumn colSTT = new DataGridViewTextBoxColumn
@@ -340,9 +354,7 @@ namespace QLKhoHang.GUI
                 // Làm mới lại bảng hàng hóa trong bộ nhớ để cập nhật tồn kho mới
                 TaiDanhSachHangHoa();
                 LamMoiPhieu();
-            
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi lưu phiếu nhập kho:\n" + ex.Message, "Lỗi nghiệp vụ",
@@ -351,11 +363,13 @@ namespace QLKhoHang.GUI
         }
         private void BtnTimNhanh_Click(object sender, EventArgs e)
         {
-            using (QLKhoHang.GUI.Forms.Transactions.frmTimKiemNhanh popup = new QLKhoHang.GUI.Forms.Transactions.frmTimKiemNhanh())
+            using (frmTimKiemNhanh popup = new frmTimKiemNhanh())
             {
                 if (popup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrEmpty(popup.MaSPDuocChon))
                 {
                     cboHangHoa.SelectedValue = popup.MaSPDuocChon;
+                    numSoLuong.Focus();
+                    numSoLuong.Select(0, numSoLuong.Text.Length);
                 }
             }
         }

@@ -1,15 +1,17 @@
-﻿using QLKhoHang.DAL;
 using System;
 using System.Data;
-using System.Data.SqlClient;
+using System.Drawing;
 using System.Windows.Forms;
+using QLKhoHang.BUS;
+using QLKhoHang.DTO;
 using QLKhoHang.GUI.Helpers;
 
-namespace QLKhoHang.GUI
+namespace QLKhoHang.GUI.Forms.MasterData
 {
     public partial class frmNhaCungCap : Form
     {
-        private bool isAddingNew = false;
+        private readonly NhaCungCapBUS _nccBUS = new NhaCungCapBUS();
+        private bool _isAddingNew = false;
 
         public frmNhaCungCap()
         {
@@ -23,307 +25,174 @@ namespace QLKhoHang.GUI
             LamMoiForm();
         }
 
-        #region 1. KHỞI TẠO GIAO DIỆN CHUẨN UI/UX
+        #region 1. CĂN CHỈNH BỐ CỤC ĐỘNG & CHUẨN HÓA GIAO DIỆN
         private void SetupUI()
         {
-            // Áp dụng định dạng chuẩn cho DataGridView từ UIThemeHelper
-            UIThemeHelper.ApplyStandardGridStyle(dgvNhaCungCap);
-
-            // Định dạng màu sắc và hiệu ứng nút bấm chuẩn UI/UX
-            UIThemeHelper.ApplyButtonStyle(btnThem, UIThemeHelper.ButtonType.SaveOrAdd);
-            UIThemeHelper.ApplyButtonStyle(btnLuu, UIThemeHelper.ButtonType.SaveOrAdd);
-            UIThemeHelper.ApplyButtonStyle(btnXoa, UIThemeHelper.ButtonType.Danger);
-            UIThemeHelper.ApplyButtonStyle(btnLamMoi, UIThemeHelper.ButtonType.Neutral);
-            UIThemeHelper.ApplyButtonStyle(btnTim, UIThemeHelper.ButtonType.Primary);
-
             this.Font = UIThemeHelper.ControlFont;
-            this.BackColor = UIThemeHelper.WorkspaceBgColor;
+            this.BackColor = Color.White;
+
+            // 1. Tự động ẩn tiêu đề con bị trùng
+            AnTieuDeTrung(this);
+
+            // 2. Tự động đồng bộ chuẩn hóa màu sắc các nút bấm
+            ChuanHoaNutBam(this);
+
+            // 3. Áp dụng định dạng bảng DataGridView chuẩn công sở
+            if (dgvNhaCungCap != null)
+            {
+                UIThemeHelper.ApplyStandardGridStyle(dgvNhaCungCap);
+                dgvNhaCungCap.ReadOnly = true;
+                dgvNhaCungCap.AllowUserToAddRows = false;
+                dgvNhaCungCap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dgvNhaCungCap.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            }
+
+            // 4. Bắt phím Enter cho ô tìm kiếm
+            TextBox txtSearch = LayOTextBoxTimKiem();
+            if (txtSearch != null)
+            {
+                txtSearch.KeyDown -= TimKiem_KeyDown;
+                txtSearch.KeyDown += TimKiem_KeyDown;
+            }
+        }
+
+        private void AnTieuDeTrung(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is Label lbl && lbl.Text.ToUpper().Contains("QUẢN LÝ DANH MỤC NHÀ CUNG CẤP"))
+                {
+                    lbl.Visible = false;
+                }
+                if (c.HasChildren)
+                {
+                    AnTieuDeTrung(c);
+                }
+            }
+        }
+
+        private void ChuanHoaNutBam(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is Button btn)
+                {
+                    string t = btn.Text.ToLower();
+                    if (t.Contains("thêm")) UIThemeHelper.ApplyButtonStyle(btn, UIThemeHelper.ButtonType.Primary);
+                    else if (t.Contains("lưu")) UIThemeHelper.ApplyButtonStyle(btn, UIThemeHelper.ButtonType.Secondary);
+                    else if (t.Contains("xóa")) UIThemeHelper.ApplyButtonStyle(btn, UIThemeHelper.ButtonType.Danger);
+                    else if (t.Contains("làm mới")) UIThemeHelper.ApplyButtonStyle(btn, UIThemeHelper.ButtonType.Neutral);
+                    else if (t.Contains("tìm")) UIThemeHelper.ApplyButtonStyle(btn, UIThemeHelper.ButtonType.Search);
+                }
+                if (c.HasChildren)
+                {
+                    ChuanHoaNutBam(c);
+                }
+            }
+        }
+
+        private TextBox LayOTextBoxTimKiem()
+        {
+            foreach (string name in new[] { "txtTimKiem", "txtTim", "txtSearch", "txtTuKhoa", "txtTimNCC" })
+            {
+                Control[] found = this.Controls.Find(name, true);
+                if (found.Length > 0 && found[0] is TextBox tb) return tb;
+            }
+            return null;
         }
         #endregion
 
-        #region 2. TẢI VÀ TÌM KIẾM DỮ LIỆU
-        private void LoadDanhSachNhaCungCap()
+        #region 2. TẢI DỮ LIỆU & BINDING DÒNG ĐƯỢC CHỌN
+        private void LoadDanhSachNhaCungCap(string tuKhoa = "")
         {
             try
             {
-                string sql = @"SELECT MaNCC, TenNCC, DienThoai, NguoiLienHe, DiaChi, Email 
-                               FROM dbo.NhaCungCap 
-                               ORDER BY MaNCC ASC";
-
-                DataTable dt = DatabaseHelper.ExecuteQuery(sql, null);
+                DataTable dt = _nccBUS.LayDanhSachNhaCungCap(tuKhoa);
                 dgvNhaCungCap.DataSource = dt;
-
-                // Tùy biến tiêu đề cột hiển thị tiếng Việt thân thiện
-                if (dgvNhaCungCap.Columns["MaNCC"] != null)
-                {
-                    dgvNhaCungCap.Columns["MaNCC"].HeaderText = "Mã NCC";
-                    dgvNhaCungCap.Columns["MaNCC"].FillWeight = 40;
-                }
-                if (dgvNhaCungCap.Columns["TenNCC"] != null)
-                {
-                    dgvNhaCungCap.Columns["TenNCC"].HeaderText = "Tên công ty cung ứng";
-                    dgvNhaCungCap.Columns["TenNCC"].FillWeight = 110;
-                }
-                if (dgvNhaCungCap.Columns["DienThoai"] != null)
-                {
-                    dgvNhaCungCap.Columns["DienThoai"].HeaderText = "Điện thoại";
-                    dgvNhaCungCap.Columns["DienThoai"].FillWeight = 50;
-                }
-                if (dgvNhaCungCap.Columns["NguoiLienHe"] != null)
-                {
-                    dgvNhaCungCap.Columns["NguoiLienHe"].HeaderText = "Người liên hệ";
-                    dgvNhaCungCap.Columns["NguoiLienHe"].FillWeight = 60;
-                }
-                if (dgvNhaCungCap.Columns["DiaChi"] != null)
-                {
-                    dgvNhaCungCap.Columns["DiaChi"].HeaderText = "Địa chỉ";
-                    dgvNhaCungCap.Columns["DiaChi"].FillWeight = 110;
-                }
-                if (dgvNhaCungCap.Columns["Email"] != null)
-                {
-                    dgvNhaCungCap.Columns["Email"].HeaderText = "Email";
-                    dgvNhaCungCap.Columns["Email"].FillWeight = 70;
-                }
+                DinhDangCotGridView();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi tải danh sách nhà cung cấp: " + ex.Message,
-                                "Lỗi CSDL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi tải danh mục nhà cung cấp: " + ex.Message, "Thông báo lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void TimKiemNhaCungCap()
+        private void DinhDangCotGridView()
         {
-            try
+            if (dgvNhaCungCap.Columns.Count == 0) return;
+
+            if (dgvNhaCungCap.Columns["MaNCC"] != null)
             {
-                string keyword = txtTimNCC.Text.Trim();
-                string sql = @"SELECT MaNCC, TenNCC, DienThoai, NguoiLienHe, DiaChi, Email 
-                               FROM dbo.NhaCungCap 
-                               WHERE MaNCC LIKE @kw 
-                                  OR TenNCC LIKE @kw 
-                                  OR DienThoai LIKE @kw 
-                                  OR NguoiLienHe LIKE @kw 
-                               ORDER BY MaNCC ASC";
-
-                SqlParameter[] pars = new SqlParameter[]
-                {
-                    new SqlParameter("@kw", "%" + keyword + "%")
-                };
-
-                DataTable dt = DatabaseHelper.ExecuteQuery(sql, pars);
-                dgvNhaCungCap.DataSource = dt;
+                dgvNhaCungCap.Columns["MaNCC"].HeaderText = "Mã NCC";
+                dgvNhaCungCap.Columns["MaNCC"].FillWeight = 55;
             }
-            catch (Exception ex)
+            if (dgvNhaCungCap.Columns["TenNCC"] != null)
             {
-                MessageBox.Show("Lỗi tìm kiếm: " + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dgvNhaCungCap.Columns["TenNCC"].HeaderText = "Tên công ty cung ứng";
+                dgvNhaCungCap.Columns["TenNCC"].FillWeight = 160;
             }
-        }
-        #endregion
-
-        #region 3. THAO TÁC CRUD
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            isAddingNew = true;
-            LamMoiForm();
-            txtMaNCC.Enabled = true;
-            txtMaNCC.Focus();
-        }
-
-        private void btnLuu_Click(object sender, EventArgs e)
-        {
-            // 1. Kiểm tra tính hợp lệ dữ liệu nhập (Validation)
-            string maNCC = txtMaNCC.Text.Trim();
-            string tenNCC = txtTenNCC.Text.Trim();
-            string dienThoai = txtDienThoai.Text.Trim();
-            string email = txtEmail.Text.Trim();
-            string diaChi = txtDiaChi.Text.Trim();
-            string nguoiLienHe = txtNguoiLienHe.Text.Trim();
-
-            if (string.IsNullOrEmpty(maNCC))
+            if (dgvNhaCungCap.Columns["DienThoai"] != null)
             {
-                MessageBox.Show("Vui lòng nhập Mã nhà cung cấp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtMaNCC.Focus();
-                return;
+                dgvNhaCungCap.Columns["DienThoai"].HeaderText = "Điện thoại";
+                dgvNhaCungCap.Columns["DienThoai"].FillWeight = 80;
             }
-
-            if (string.IsNullOrEmpty(tenNCC))
+            if (dgvNhaCungCap.Columns["NguoiLienHe"] != null)
             {
-                MessageBox.Show("Vui lòng nhập Tên nhà cung cấp!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtTenNCC.Focus();
-                return;
+                dgvNhaCungCap.Columns["NguoiLienHe"].HeaderText = "Người liên hệ";
+                dgvNhaCungCap.Columns["NguoiLienHe"].FillWeight = 90;
             }
-
-            if (string.IsNullOrEmpty(dienThoai))
+            if (dgvNhaCungCap.Columns["DiaChi"] != null)
             {
-                MessageBox.Show("Vui lòng nhập Số điện thoại liên hệ!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtDienThoai.Focus();
-                return;
+                dgvNhaCungCap.Columns["DiaChi"].HeaderText = "Địa chỉ";
+                dgvNhaCungCap.Columns["DiaChi"].FillWeight = 150;
             }
-
-            try
+            if (dgvNhaCungCap.Columns["Email"] != null)
             {
-                if (isAddingNew)
-                {
-                    // Kiểm tra trùng khóa chính MaNCC
-                    string sqlCheck = "SELECT COUNT(*) FROM dbo.NhaCungCap WHERE MaNCC = @MaNCC";
-                    SqlParameter[] parCheck = { new SqlParameter("@MaNCC", maNCC) };
-                    object result = DatabaseHelper.ExecuteScalar(sqlCheck, parCheck);
-
-                    if (result != null && Convert.ToInt32(result) > 0)
-                    {
-                        MessageBox.Show($"Mã nhà cung cấp '{maNCC}' đã tồn tại trong hệ thống! Vui lòng chọn mã khác.",
-                                        "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        txtMaNCC.Focus();
-                        return;
-                    }
-
-                    // Thực hiện INSERT với SqlParameter tuyệt đối an toàn
-                    string sqlInsert = @"INSERT INTO dbo.NhaCungCap (MaNCC, TenNCC, DienThoai, Email, DiaChi, NguoiLienHe)
-                                         VALUES (@MaNCC, @TenNCC, @DienThoai, @Email, @DiaChi, @NguoiLienHe)";
-
-                    SqlParameter[] parInsert = new SqlParameter[]
-                    {
-                        new SqlParameter("@MaNCC", maNCC),
-                        new SqlParameter("@TenNCC", tenNCC),
-                        new SqlParameter("@DienThoai", dienThoai),
-                        new SqlParameter("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email),
-                        new SqlParameter("@DiaChi", string.IsNullOrEmpty(diaChi) ? (object)DBNull.Value : diaChi),
-                        new SqlParameter("@NguoiLienHe", string.IsNullOrEmpty(nguoiLienHe) ? (object)DBNull.Value : nguoiLienHe)
-                    };
-
-                    int rows = DatabaseHelper.ExecuteNonQuery(sqlInsert, parInsert);
-                    if (rows > 0)
-                    {
-                        MessageBox.Show("Thêm mới nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                else
-                {
-                    // Thực hiện UPDATE
-                    string sqlUpdate = @"UPDATE dbo.NhaCungCap 
-                                         SET TenNCC = @TenNCC,
-                                             DienThoai = @DienThoai,
-                                             Email = @Email,
-                                             DiaChi = @DiaChi,
-                                             NguoiLienHe = @NguoiLienHe
-                                         WHERE MaNCC = @MaNCC";
-
-                    SqlParameter[] parUpdate = new SqlParameter[]
-                    {
-                        new SqlParameter("@MaNCC", maNCC),
-                        new SqlParameter("@TenNCC", tenNCC),
-                        new SqlParameter("@DienThoai", dienThoai),
-                        new SqlParameter("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email),
-                        new SqlParameter("@DiaChi", string.IsNullOrEmpty(diaChi) ? (object)DBNull.Value : diaChi),
-                        new SqlParameter("@NguoiLienHe", string.IsNullOrEmpty(nguoiLienHe) ? (object)DBNull.Value : nguoiLienHe)
-                    };
-
-                    int rows = DatabaseHelper.ExecuteNonQuery(sqlUpdate, parUpdate);
-                    if (rows > 0)
-                    {
-                        MessageBox.Show("Cập nhật thông tin nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-
-                LoadDanhSachNhaCungCap();
-                LamMoiForm();
+                dgvNhaCungCap.Columns["Email"].HeaderText = "Email";
+                dgvNhaCungCap.Columns["Email"].FillWeight = 130;
             }
-            catch (Exception ex)
+            if (dgvNhaCungCap.Columns["TenHienThi"] != null)
             {
-                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnXoa_Click(object sender, EventArgs e)
-        {
-            string maNCC = txtMaNCC.Text.Trim();
-            string tenNCC = txtTenNCC.Text.Trim();
-
-            if (string.IsNullOrEmpty(maNCC) || isAddingNew)
-            {
-                MessageBox.Show("Vui lòng chọn nhà cung cấp từ bảng cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                // Kiểm tra an toàn toàn vẹn dữ liệu: Có vướng khóa ngoại PhieuNhap không?
-                // Đoạn chuẩn:
-                string sqlCheckFK = "SELECT COUNT(*) FROM dbo.PhieuNhap WHERE MaNCC = @MaNCC";
-                SqlParameter[] parCheck = { new SqlParameter("@MaNCC", maNCC) };
-                object count = DatabaseHelper.ExecuteScalar(sqlCheckFK, parCheck);
-
-                if (count != null && Convert.ToInt32(count) > 0)
-                {
-                    MessageBox.Show($"Không thể xóa nhà cung cấp [{maNCC}] vì đã có {count} phiếu nhập kho liên kết trong hệ thống!\nĐể đảm bảo tính toàn vẹn dữ liệu kế toán, bạn chỉ có thể cập nhật thông tin.",
-                                    "Chặn thao tác xóa", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    return;
-                }
-
-                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa nhà cung cấp:\n[{maNCC}] - {tenNCC} không?",
-                                                  "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (dr == DialogResult.Yes)
-                {
-                    string sqlDelete = "DELETE FROM dbo.NhaCungCap WHERE MaNCC = @MaNCC";
-                    SqlParameter[] parDelete = { new SqlParameter("@MaNCC", maNCC) };
-
-                    int rows = DatabaseHelper.ExecuteNonQuery(sqlDelete, parDelete);
-                    if (rows > 0)
-                    {
-                        MessageBox.Show("Xóa nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDanhSachNhaCungCap();
-                        LamMoiForm();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnLamMoi_Click(object sender, EventArgs e)
-        {
-            LamMoiForm();
-            LoadDanhSachNhaCungCap();
-        }
-
-        private void btnTim_Click(object sender, EventArgs e)
-        {
-            TimKiemNhaCungCap();
-        }
-
-        private void txtTimNCC_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                TimKiemNhaCungCap();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
+                dgvNhaCungCap.Columns["TenHienThi"].Visible = false;
             }
         }
 
         private void dgvNhaCungCap_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.RowIndex < dgvNhaCungCap.Rows.Count)
-            {
-                DataGridViewRow row = dgvNhaCungCap.Rows[e.RowIndex];
-                if (row == null || row.Cells["MaNCC"].Value == null) return;
+            if (e.RowIndex < 0) return;
+            HienThiChiTietDongHienTai(dgvNhaCungCap.Rows[e.RowIndex]);
+        }
 
-                txtMaNCC.Text = row.Cells["MaNCC"].Value.ToString();
+        private void dgvNhaCungCap_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvNhaCungCap.CurrentRow != null && dgvNhaCungCap.CurrentRow.Index >= 0)
+            {
+                HienThiChiTietDongHienTai(dgvNhaCungCap.CurrentRow);
+            }
+        }
+
+        private void HienThiChiTietDongHienTai(DataGridViewRow row)
+        {
+            try
+            {
+                txtMaNCC.Text = row.Cells["MaNCC"].Value?.ToString() ?? "";
                 txtTenNCC.Text = row.Cells["TenNCC"].Value?.ToString() ?? "";
                 txtDienThoai.Text = row.Cells["DienThoai"].Value?.ToString() ?? "";
                 txtNguoiLienHe.Text = row.Cells["NguoiLienHe"].Value?.ToString() ?? "";
                 txtDiaChi.Text = row.Cells["DiaChi"].Value?.ToString() ?? "";
                 txtEmail.Text = row.Cells["Email"].Value?.ToString() ?? "";
 
-                // Khóa ô mã NCC khi đang chọn sửa dòng có sẵn
-                txtMaNCC.Enabled = false;
-                isAddingNew = false;
+                txtMaNCC.ReadOnly = true;
+                _isAddingNew = false;
+            }
+            catch
+            {
             }
         }
+        #endregion
 
+        #region 3. NGHIỆP VỤ CRUD QUA TẦNG BUS
         private void LamMoiForm()
         {
             txtMaNCC.Clear();
@@ -332,11 +201,138 @@ namespace QLKhoHang.GUI
             txtNguoiLienHe.Clear();
             txtDiaChi.Clear();
             txtEmail.Clear();
-            txtTimNCC.Clear();
 
-            txtMaNCC.Enabled = true;
-            isAddingNew = true;
+            txtMaNCC.ReadOnly = false;
+            _isAddingNew = true;
             txtMaNCC.Focus();
+        }
+
+        private void btnThem_Click(object sender, EventArgs e)
+        {
+            LamMoiForm();
+        }
+
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+            string maNCC = txtMaNCC.Text.Trim();
+            string tenNCC = txtTenNCC.Text.Trim();
+            string dienThoai = txtDienThoai.Text.Trim();
+            string email = txtEmail.Text.Trim();
+            string diaChi = txtDiaChi.Text.Trim();
+            string nguoiLienHe = txtNguoiLienHe.Text.Trim();
+
+            NhaCungCapDTO ncc = new NhaCungCapDTO
+            {
+                MaNCC = maNCC,
+                TenNCC = tenNCC,
+                DienThoai = dienThoai,
+                Email = email,
+                DiaChi = diaChi,
+                NguoiLienHe = nguoiLienHe
+            };
+
+            try
+            {
+                if (_isAddingNew)
+                {
+                    _nccBUS.ThemNhaCungCap(ncc);
+                    MessageBox.Show("Thêm mới nhà cung cấp thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    _nccBUS.CapNhatNhaCungCap(ncc);
+                    MessageBox.Show("Cập nhật thông tin nhà cung cấp thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                LoadDanhSachNhaCungCap();
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message, "Dữ liệu không hợp lệ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Ràng buộc nghiệp vụ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu dữ liệu: " + ex.Message, "Lỗi hệ thống",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            string maNCC = txtMaNCC.Text.Trim();
+            if (string.IsNullOrWhiteSpace(maNCC) || _isAddingNew)
+            {
+                MessageBox.Show("Vui lòng chọn nhà cung cấp cần xóa từ danh sách.", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult dr = MessageBox.Show(
+                "Bạn có chắc chắn muốn xóa nhà cung cấp: [" + maNCC + "] - " + txtTenNCC.Text + "?",
+                "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dr != DialogResult.Yes) return;
+
+            try
+            {
+                _nccBUS.XoaNhaCungCap(maNCC);
+                MessageBox.Show("Đã xóa nhà cung cấp thành công!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LoadDanhSachNhaCungCap();
+                LamMoiForm();
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Bảo vệ toàn vẹn dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xóa nhà cung cấp: " + ex.Message, "Lỗi hệ thống",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnLamMoi_Click(object sender, EventArgs e)
+        {
+            TextBox txtSearch = LayOTextBoxTimKiem();
+            if (txtSearch != null) txtSearch.Clear();
+
+            LoadDanhSachNhaCungCap();
+            LamMoiForm();
+        }
+
+        private void btnTim_Click(object sender, EventArgs e)
+        {
+            ThucHienTimKiem();
+        }
+
+        private void ThucHienTimKiem()
+        {
+            TextBox txtSearch = LayOTextBoxTimKiem();
+            string tuKhoa = txtSearch != null ? txtSearch.Text.Trim() : "";
+            LoadDanhSachNhaCungCap(tuKhoa);
+        }
+
+        private void TimKiem_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                ThucHienTimKiem();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void txtTimNCC_KeyDown(object sender, KeyEventArgs e)
+        {
+            TimKiem_KeyDown(sender, e);
         }
         #endregion
     }

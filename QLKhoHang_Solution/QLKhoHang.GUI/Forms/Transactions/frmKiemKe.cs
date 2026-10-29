@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using QLKhoHang.BUS;
 using QLKhoHang.DTO;
 using QLKhoHang.GUI.Common;
+using QLKhoHang.GUI.Helpers;
 
 namespace QLKhoHang.GUI.Forms.Transactions
 {
@@ -55,8 +56,14 @@ namespace QLKhoHang.GUI.Forms.Transactions
 
         private void KhoiTaoCauTrucBang()
         {
+            UIThemeHelper.ApplyStandardGridStyle(dgvKiemKe);
+            dgvKiemKe.ReadOnly = false;
+            this.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
             dgvKiemKe.AutoGenerateColumns = false;
             dgvKiemKe.Columns.Clear();
+            dgvKiemKe.AllowUserToAddRows = false;
+            dgvKiemKe.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvKiemKe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             // Cột 1: Mã SP (Chỉ đọc)
             dgvKiemKe.Columns.Add(new DataGridViewTextBoxColumn

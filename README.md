@@ -33,12 +33,12 @@ Chỉ chạy script trên instance/database đã xác nhận. Không dùng thôn
 
 ## Nhóm thực hiện
 
-Nhóm gồm 4 thành viên, tỷ trọng đóng góp dự kiến 25% mỗi người. Bổ sung tên thành viên, lớp và môn học theo thông tin chính thức của nhóm.
+Nhóm gồm 4 thành viên, tỷ trọng đóng góp 25% mỗi người:
 
-- TV1: kiến trúc, database, đăng nhập và shell hệ thống (`feature/auth-main-db`).
-- TV2: danh mục hàng hóa và nhà cung cấp (`feature/master-data`).
-- TV3: nhập, xuất và kiểm kê (`feature/transactions-warehouse`).
-- TV4: thẻ kho, báo cáo và kiểm thử (`feature/inventory-reports`).
+- **TV1**: Nguyễn Quốc Bảo (MSSV: `231A290098`) - Kiến trúc hệ thống, CSDL, xác thực & phân quyền RBAC, shell chính (`feature/auth-main-db`).
+- **TV2**: Đỗ Lê Tuấn Đạt (MSSV: `231A290089`) - Danh mục hàng hóa, nhà cung cấp, giới thiệu phần mềm & UI theme (`feature/master-data`).
+- **TV3**: Bùi Quang Duy (MSSV: `231A290127`) - Nghiệp vụ: phiếu nhập kho, xuất kho, kiểm kê & cân bằng kho (`feature/transactions-warehouse`).
+- **TV4**: Nguyễn Nhật Duy (MSSV: `231A010060`) - Báo cáo & thống kê: thẻ kho, báo cáo NXT, xuất Excel & kiểm thử QA (`feature/inventory-reports`).
 
 ## Nhánh làm việc
 

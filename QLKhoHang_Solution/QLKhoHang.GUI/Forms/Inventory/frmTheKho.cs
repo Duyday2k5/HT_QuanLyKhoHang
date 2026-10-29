@@ -1,17 +1,18 @@
 using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using ClosedXML.Excel;
-using QLKhoHang.DAL;
+using QLKhoHang.BUS;
+using QLKhoHang.GUI.Helpers;
 
 namespace QLKhoHang.GUI.Forms.Inventory
 {
     public partial class frmTheKho : Form
     {
         private readonly CultureInfo _culture = CultureInfo.GetCultureInfo("vi-VN");
+        private readonly TheKhoBUS _theKhoBUS = new TheKhoBUS();
         private string _donViTinh = string.Empty;
 
         public frmTheKho()
@@ -25,18 +26,25 @@ namespace QLKhoHang.GUI.Forms.Inventory
             dtpTuNgay.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             dtpDenNgay.Value = DateTime.Today;
 
+            // Thiết lập chuẩn giao diện
+            this.Font = UIThemeHelper.ControlFont;
+            if (dgvTheKho != null)
+            {
+                UIThemeHelper.ApplyStandardGridStyle(dgvTheKho);
+                dgvTheKho.ReadOnly = true;
+                dgvTheKho.AllowUserToAddRows = false;
+                dgvTheKho.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dgvTheKho.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            }
+
             try
             {
-                const string sql = @"
-SELECT MaSP, CONVERT(NVARCHAR(20), MaSP) + N' - ' + TenSP AS TenHienThi
-FROM dbo.HangHoa
-ORDER BY TenSP, MaSP;";
-                DataTable hangHoa = DatabaseHelper.ExecuteQuery(sql, null);
+                DataTable hangHoa = _theKhoBUS.LayDanhSachHangHoaChoTheKho();
                 cboHangHoa.DisplayMember = "TenHienThi";
                 cboHangHoa.ValueMember = "MaSP";
                 cboHangHoa.DataSource = hangHoa;
 
-                bool coHangHoa = hangHoa.Rows.Count > 0;
+                bool coHangHoa = hangHoa != null && hangHoa.Rows.Count > 0;
                 cboHangHoa.Enabled = coHangHoa;
                 btnXemTheKho.Enabled = coHangHoa;
                 btnXuatExcel.Enabled = false;
@@ -50,7 +58,7 @@ ORDER BY TenSP, MaSP;";
             {
                 btnXemTheKho.Enabled = false;
                 btnXuatExcel.Enabled = false;
-                HienThiLoi("Không thể tải danh sách mặt hàng. Vui lòng kiểm tra kết nối cơ sở dữ liệu. " + ex.Message);
+                HienThiLoi("Không thể tải danh sách mặt hàng: " + ex.Message);
             }
         }
 
@@ -78,160 +86,46 @@ ORDER BY TenSP, MaSP;";
             lblTongXuat.Text = "—";
             lblTonCuoi.Text = "—";
             UseWaitCursor = true;
+
             try
             {
                 string maSP = Convert.ToString(cboHangHoa.SelectedValue, CultureInfo.InvariantCulture);
-                DataTable thongTinHang = DatabaseHelper.ExecuteQuery(
-                    @"SELECT SoLuongTon, DonViTinh, GiaNhapGanNhat
-FROM dbo.HangHoa
-WHERE MaSP = @MaSP;",
-                    new[]
-                    {
-                        new SqlParameter("@MaSP", SqlDbType.VarChar, 20) { Value = maSP }
-                    });
 
-                if (thongTinHang.Rows.Count == 0)
-                {
-                    throw new InvalidOperationException("Mặt hàng đã bị xóa hoặc không còn tồn tại trong danh mục.");
-                }
+                decimal tonDauKy;
+                decimal tongNhapTrongKy;
+                decimal tongXuatTrongKy;
+                decimal tonCuoiKy;
+                string donViTinh;
 
-                DataRow hangHoa = thongTinHang.Rows[0];
-                decimal soLuongTonHienTai = Convert.ToDecimal(hangHoa["SoLuongTon"], CultureInfo.InvariantCulture);
-                decimal giaNhapGanNhat = Convert.ToDecimal(hangHoa["GiaNhapGanNhat"], CultureInfo.InvariantCulture);
-                _donViTinh = Convert.ToString(hangHoa["DonViTinh"], CultureInfo.CurrentCulture);
-
-                decimal tongNhapTuNgayDenNay = LayTongSoLuong(
-                    @"SELECT COALESCE(SUM(CONVERT(BIGINT, CTPN.SoLuongNhap)), 0)
-FROM dbo.ChiTietPhieuNhap AS CTPN
-INNER JOIN dbo.PhieuNhap AS PN ON PN.MaPN = CTPN.MaPN
-WHERE CTPN.MaSP = @MaSP
-  AND PN.NgayNhap >= @TuNgay
-  AND PN.NgayNhap <= GETDATE();",
+                DataTable theKho = _theKhoBUS.LayTheKho(
                     maSP,
-                    tuNgay);
-                decimal tongXuatTuNgayDenNay = LayTongSoLuong(
-                    @"SELECT COALESCE(SUM(CONVERT(BIGINT, CTPX.SoLuongXuat)), 0)
-FROM dbo.ChiTietPhieuXuat AS CTPX
-INNER JOIN dbo.PhieuXuat AS PX ON PX.MaPX = CTPX.MaPX
-WHERE CTPX.MaSP = @MaSP
-  AND PX.NgayXuat >= @TuNgay
-  AND PX.NgayXuat <= GETDATE();",
-                    maSP,
-                    tuNgay);
+                    tuNgay,
+                    denNgay,
+                    out tonDauKy,
+                    out tongNhapTrongKy,
+                    out tongXuatTrongKy,
+                    out tonCuoiKy,
+                    out donViTinh);
 
-                decimal tonDauKy = soLuongTonHienTai - tongNhapTuNgayDenNay + tongXuatTuNgayDenNay;
-                DataTable giaoDich = DatabaseHelper.ExecuteQuery(
-                    @"SELECT PN.NgayNhap AS NgayGhi,
-       PN.MaPN AS ChungTu,
-       N'Nhập hàng ' + ISNULL(NCC.TenNCC, N'') AS DienGiai,
-       CTPN.DonGiaNhap AS DonGia,
-       CTPN.SoLuongNhap AS SLNhap,
-       0 AS SLXuat
-FROM dbo.PhieuNhap AS PN
-INNER JOIN dbo.ChiTietPhieuNhap AS CTPN ON CTPN.MaPN = PN.MaPN
-LEFT JOIN dbo.NhaCungCap AS NCC ON NCC.MaNCC = PN.MaNCC
-WHERE CTPN.MaSP = @MaSP
-  AND PN.NgayNhap >= @TuNgay
-  AND PN.NgayNhap < DATEADD(DAY, 1, @DenNgay)
-UNION ALL
-SELECT PX.NgayXuat AS NgayGhi,
-       PX.MaPX AS ChungTu,
-       N'Xuất giao ' + ISNULL(PX.NguoiNhan, N'') + N' (' + ISNULL(PX.LyDoXuat, N'') + N')' AS DienGiai,
-       CTPX.DonGiaXuat AS DonGia,
-       0 AS SLNhap,
-       CTPX.SoLuongXuat AS SLXuat
-FROM dbo.PhieuXuat AS PX
-INNER JOIN dbo.ChiTietPhieuXuat AS CTPX ON CTPX.MaPX = PX.MaPX
-WHERE CTPX.MaSP = @MaSP
-  AND PX.NgayXuat >= @TuNgay
-  AND PX.NgayXuat < DATEADD(DAY, 1, @DenNgay)
-ORDER BY NgayGhi ASC, ChungTu ASC;",
-                    new[]
-                    {
-                        new SqlParameter("@MaSP", SqlDbType.VarChar, 20) { Value = maSP },
-                        new SqlParameter("@TuNgay", SqlDbType.DateTime) { Value = tuNgay },
-                        new SqlParameter("@DenNgay", SqlDbType.DateTime) { Value = denNgay }
-                    });
-
-                DataTable theKho = TaoBangTheKho();
-                decimal soDuHienTai = tonDauKy;
-                theKho.Rows.Add(
-                    tuNgay.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                    "DUKY",
-                    "Tồn đầu kỳ",
-                    giaNhapGanNhat,
-                    "-",
-                    "-",
-                    soDuHienTai);
-
-                decimal tongNhapTrongKy = 0;
-                decimal tongXuatTrongKy = 0;
-                foreach (DataRow giaoDichRow in giaoDich.Rows)
-                {
-                    DateTime ngayGhi = Convert.ToDateTime(giaoDichRow["NgayGhi"], CultureInfo.InvariantCulture);
-                    decimal donGia = Convert.ToDecimal(giaoDichRow["DonGia"], CultureInfo.InvariantCulture);
-                    decimal slNhap = Convert.ToDecimal(giaoDichRow["SLNhap"], CultureInfo.InvariantCulture);
-                    decimal slXuat = Convert.ToDecimal(giaoDichRow["SLXuat"], CultureInfo.InvariantCulture);
-                    soDuHienTai = soDuHienTai + slNhap - slXuat;
-                    tongNhapTrongKy += slNhap;
-                    tongXuatTrongKy += slXuat;
-
-                    theKho.Rows.Add(
-                        ngayGhi.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
-                        Convert.ToString(giaoDichRow["ChungTu"], CultureInfo.CurrentCulture),
-                        Convert.ToString(giaoDichRow["DienGiai"], CultureInfo.CurrentCulture),
-                        donGia,
-                        slNhap,
-                        slXuat,
-                        soDuHienTai);
-                }
-
+                _donViTinh = donViTinh;
                 dgvTheKho.DataSource = theKho;
-                CapNhatKPI(tonDauKy, tongNhapTrongKy, tongXuatTrongKy, soDuHienTai);
-                lblGhiChu.Text = "Đơn vị tính: " + _donViTinh + "  |  " + giaoDich.Rows.Count.ToString("N0", _culture) + " giao dịch trong kỳ.";
+
+                CapNhatKPI(tonDauKy, tongNhapTrongKy, tongXuatTrongKy, tonCuoiKy);
+                int soGiaoDich = Math.Max(0, theKho.Rows.Count - 1);
+                lblGhiChu.ForeColor = Color.FromArgb(71, 85, 105);
+                lblGhiChu.Text = "Đơn vị tính: " + _donViTinh + "  |  " + soGiaoDich.ToString("N0", _culture) + " giao dịch trong kỳ.";
                 btnXuatExcel.Enabled = true;
             }
             catch (Exception ex)
             {
                 btnXuatExcel.Enabled = false;
-                HienThiLoi("Không thể tải thẻ kho. Vui lòng kiểm tra dữ liệu và kết nối SQL Server. " + ex.Message);
+                HienThiLoi("Không thể tải thẻ kho: " + ex.Message);
             }
             finally
             {
                 UseWaitCursor = false;
                 btnXemTheKho.Enabled = cboHangHoa.Enabled && cboHangHoa.Items.Count > 0;
             }
-        }
-
-        private decimal LayTongSoLuong(string sql, string maSP, DateTime tuNgay)
-        {
-            object result = DatabaseHelper.ExecuteScalar(
-                sql,
-                new[]
-                {
-                    new SqlParameter("@MaSP", SqlDbType.VarChar, 20) { Value = maSP },
-                    new SqlParameter("@TuNgay", SqlDbType.DateTime) { Value = tuNgay }
-                });
-
-            if (result == null || result == DBNull.Value)
-            {
-                return 0;
-            }
-
-            return Convert.ToDecimal(result, CultureInfo.InvariantCulture);
-        }
-
-        private static DataTable TaoBangTheKho()
-        {
-            DataTable table = new DataTable("TheKho");
-            table.Columns.Add("NgayGhi", typeof(string));
-            table.Columns.Add("ChungTu", typeof(string));
-            table.Columns.Add("DienGiai", typeof(string));
-            table.Columns.Add("DonGia", typeof(decimal));
-            table.Columns.Add("SLNhap", typeof(object));
-            table.Columns.Add("SLXuat", typeof(object));
-            table.Columns.Add("SoDuTon", typeof(decimal));
-            return table;
         }
 
         private void CapNhatKPI(decimal tonDau, decimal tongNhap, decimal tongXuat, decimal tonCuoi)
@@ -268,6 +162,7 @@ ORDER BY NgayGhi ASC, ChungTu ASC;",
                     return;
                 }
 
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
                 try
                 {
                     XuatBaoCaoExcel(dialog.FileName);
@@ -275,7 +170,11 @@ ORDER BY NgayGhi ASC, ChungTu ASC;",
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Không thể xuất file Excel. Vui lòng kiểm tra quyền ghi và thử lại. " + ex.Message, "Xuất Excel thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Không thể xuất file Excel: " + ex.Message, "Xuất Excel thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    System.Windows.Forms.Cursor.Current = Cursors.Default;
                 }
             }
         }
@@ -301,81 +200,29 @@ ORDER BY NgayGhi ASC, ChungTu ASC;",
                 worksheet.Cell(6, 5).Value = lblTongXuat.Text;
                 worksheet.Cell(6, 7).Value = lblTonCuoi.Text;
 
-                worksheet.Range(5, 1, 5, 7).Style.Font.Bold = true;
-                worksheet.Range(5, 1, 5, 7).Style.Font.FontColor = XLColor.White;
-                worksheet.Range(5, 1, 5, 7).Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-                worksheet.Range(6, 1, 6, 7).Style.Font.Bold = true;
-                worksheet.Range(6, 1, 6, 7).Style.Fill.BackgroundColor = XLColor.FromHtml("#F1F5F9");
-
-                worksheet.Range(8, 1, 8, 7).Merge();
-                worksheet.Cell(8, 1).Value = "CHI TIẾT GIAO DỊCH";
-                worksheet.Cell(8, 1).Style.Font.Bold = true;
-                worksheet.Cell(8, 1).Style.Font.FontColor = XLColor.White;
-                worksheet.Cell(8, 1).Style.Fill.BackgroundColor = XLColor.FromHtml("#0D9488");
-
-                int headerRow = 9;
-                for (int columnIndex = 0; columnIndex < dgvTheKho.Columns.Count; columnIndex++)
+                int headerRow = 8;
+                for (int colIndex = 0; colIndex < dgvTheKho.Columns.Count; colIndex++)
                 {
-                    IXLCell headerCell = worksheet.Cell(headerRow, columnIndex + 1);
-                    headerCell.Value = dgvTheKho.Columns[columnIndex].HeaderText;
-                    headerCell.Style.Font.Bold = true;
-                    headerCell.Style.Font.FontColor = XLColor.White;
-                    headerCell.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-                    headerCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(headerRow, colIndex + 1).Value = dgvTheKho.Columns[colIndex].HeaderText;
                 }
 
                 int excelRow = headerRow + 1;
                 foreach (DataGridViewRow gridRow in dgvTheKho.Rows)
                 {
-                    if (gridRow.IsNewRow)
+                    if (gridRow.IsNewRow) continue;
+                    for (int colIndex = 0; colIndex < dgvTheKho.Columns.Count; colIndex++)
                     {
-                        continue;
+                        GanGiaTriOExcel(worksheet.Cell(excelRow, colIndex + 1), gridRow.Cells[colIndex].Value);
                     }
-
-                    for (int columnIndex = 0; columnIndex < dgvTheKho.Columns.Count; columnIndex++)
-                    {
-                        GhiGiaTriExcel(worksheet.Cell(excelRow, columnIndex + 1), gridRow.Cells[columnIndex].Value);
-                    }
-
-                    if ((excelRow - headerRow) % 2 == 0)
-                    {
-                        worksheet.Range(excelRow, 1, excelRow, dgvTheKho.Columns.Count).Style.Fill.BackgroundColor = XLColor.FromHtml("#F1F5F9");
-                    }
-
                     excelRow++;
                 }
 
-                IXLRange dataRange = worksheet.Range(headerRow, 1, excelRow - 1, dgvTheKho.Columns.Count);
-                dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-                dataRange.Style.Border.OutsideBorderColor = XLColor.FromHtml("#CBD5E1");
-                dataRange.Style.Border.InsideBorderColor = XLColor.FromHtml("#E2E8F0");
-                dataRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                worksheet.Column(4).Style.NumberFormat.Format = "#,##0";
-                worksheet.Column(5).Style.NumberFormat.Format = "#,##0";
-                worksheet.Column(6).Style.NumberFormat.Format = "#,##0";
-                worksheet.Column(7).Style.NumberFormat.Format = "#,##0";
-                worksheet.Column(4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                worksheet.Column(5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                worksheet.Column(6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                worksheet.Column(7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-                dataRange.SetAutoFilter();
-                worksheet.SheetView.FreezeRows(headerRow);
-                worksheet.Columns(1, 7).AdjustToContents();
-                worksheet.Column(1).Width = Math.Max(worksheet.Column(1).Width, 13);
-                worksheet.Column(3).Width = Math.Max(worksheet.Column(3).Width, 34);
-                worksheet.Range(1, 1, 1, 7).Style.Font.FontName = "Segoe UI";
-                worksheet.Range(1, 1, excelRow - 1, 7).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                worksheet.Range(1, 1, 1, 7).Style.Font.FontSize = 16;
-                worksheet.Range(1, 1, 1, 7).Style.Font.Bold = true;
-                worksheet.Range(1, 1, 1, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Range(1, 1, excelRow - 1, 7).Style.Font.FontName = "Segoe UI";
-                worksheet.Row(1).Height = 28;
+                worksheet.Columns().AdjustToContents();
                 workbook.SaveAs(filePath);
             }
         }
 
-        private static void GhiGiaTriExcel(IXLCell cell, object value)
+        private void GanGiaTriOExcel(IXLCell cell, object value)
         {
             if (value == null || value == DBNull.Value)
             {
@@ -400,7 +247,7 @@ ORDER BY NgayGhi ASC, ChungTu ASC;",
 
         private void HienThiLoi(string message)
         {
-            lblGhiChu.ForeColor = System.Drawing.Color.FromArgb(185, 28, 28);
+            lblGhiChu.ForeColor = Color.FromArgb(185, 28, 28);
             lblGhiChu.Text = message;
             MessageBox.Show(message, "Thẻ kho", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

@@ -10,6 +10,22 @@ namespace QLKhoHang.BUS
     {
         public bool CoQuyen(NhanVienDTO nhanVien, ChucNang chucNang)
         {
+            // Cấu hình CSDL là tính năng cứu hộ kỹ thuật, luôn cho phép mở kể cả khi chưa đăng nhập
+            if (chucNang == ChucNang.KetNoiCSDL)
+            {
+                return true;
+            }
+
+            if (nhanVien == null)
+            {
+                return false;
+            }
+
+            // Các kiểm tra quyền vai trò bên dưới giữ nguyên...
+            if (string.Equals(nhanVien.VaiTro, "Quản lý kho", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
             if (nhanVien == null || string.IsNullOrWhiteSpace(nhanVien.VaiTro))
             {
                 return false;
