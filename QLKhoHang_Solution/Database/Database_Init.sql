@@ -1,17 +1,17 @@
-/*
-    QLKhoHang database bootstrap
+﻿/*
+    LTWIN_N4_QLKH_DB database bootstrap
     Schema source: project report, section II, seven-entity schema.
     This script creates missing objects only. It does not drop or overwrite data.
     Review the target SQL Server instance before executing this script.
 */
 
-IF DB_ID(N'QLKhoHang') IS NULL
+IF DB_ID(N'LTWIN_N4_QLKH_DB') IS NULL
 BEGIN
-    CREATE DATABASE [QLKhoHang];
+    CREATE DATABASE [LTWIN_N4_QLKH_DB];
 END;
 GO
 
-USE [QLKhoHang];
+USE [LTWIN_N4_QLKH_DB];
 GO
 
 IF OBJECT_ID(N'dbo.NhanVien', N'U') IS NULL

@@ -4,7 +4,7 @@
 
 ## Điều kiện trước khi kiểm tra
 
-- Kết nối `QLKhoHangConnection` trỏ tới đúng instance và database `QLKhoHang`.
+- Kết nối `LTWIN_N4_QLKHConnection` trỏ tới đúng instance và database `LTWIN_N4_QLKH_DB`.
 - Bảng `dbo.NhanVien` có tài khoản mẫu cho từng vai trò.
 - `MatKhau` lưu theo định dạng PBKDF2-SHA256 do ứng dụng tạo; mật khẩu dạng rõ không được chấp nhận.
 - Các chức năng nghiệp vụ trên menu hiện là điểm tích hợp khung. Form Hàng hóa, Nhập/Xuất, Kiểm kê, Thẻ kho, Báo cáo, Sao lưu và cấu hình DB chưa được tích hợp.

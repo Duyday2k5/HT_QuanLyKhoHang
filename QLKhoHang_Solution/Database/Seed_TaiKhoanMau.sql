@@ -1,5 +1,5 @@
-/*
-    Tạo hai tài khoản mẫu cho database QLKhoHang.
+﻿/*
+    Tạo hai tài khoản mẫu cho database LTWIN_N4_QLKH_DB.
 
     Tài khoản: admin     | Vai trò: Quản lý kho | Mật khẩu ban đầu: admin
     Tài khoản: nhanvien  | Vai trò: Thủ kho      | Mật khẩu ban đầu: nhanvien
@@ -10,14 +10,14 @@
     Hãy đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
 */
 
-USE [QLKhoHang];
+USE [LTWIN_N4_QLKH_DB];
 GO
 
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
 IF OBJECT_ID(N'dbo.NhanVien', N'U') IS NULL
-    THROW 51000, N'Không tìm thấy bảng dbo.NhanVien trong database QLKhoHang.', 1;
+    THROW 51000, N'Không tìm thấy bảng dbo.NhanVien trong database LTWIN_N4_QLKH_DB.', 1;
 
 BEGIN TRY
     BEGIN TRANSACTION;

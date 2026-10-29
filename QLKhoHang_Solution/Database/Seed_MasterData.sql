@@ -1,11 +1,11 @@
-/*
+﻿/*
     Seed_MasterData.sql - Bộ dữ liệu mẫu cho Thành viên 2 (Master Data)
     Đề tài: Phần mềm Quản lý Kho hàng
     Mô hình: Hàng tiêu dùng nhanh (FMCG) / Bách hóa tổng hợp
     Quy chuẩn: 4 Nhà cung cấp & 20 Sản phẩm FMCG thuộc 3 nhóm hàng
 */
 
-USE [QLKhoHang];
+USE [LTWIN_N4_QLKH_DB];
 GO
 
 SET NOCOUNT ON;
